@@ -90,32 +90,56 @@
 
     <!-- Screen Navigation & Header -->
     <header class="no-print bg-utNavy border-b border-burntOrange/30 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
-            <!-- Brand Logo / Title -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap justify-between items-center gap-3">
+            
+            <!-- Left Brand Logo / Title -->
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-burntOrange flex items-center justify-center font-bold text-white shadow-md shadow-burntOrange/30 text-xl tracking-wider">
+                <div class="w-9 h-9 rounded-xl bg-burntOrange flex items-center justify-center font-bold text-white shadow-md shadow-burntOrange/30 text-lg tracking-wider">
                     UT
                 </div>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                        OnRamps CS <span class="text-xs px-2 py-0.5 rounded-full bg-burntOrange/20 text-burntOrange border border-burntOrange/40 font-mono font-medium">Loop Tracing</span>
+                    <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+                        OnRamps CS <span class="text-[10px] px-2 py-0.5 rounded-full bg-burntOrange/20 text-burntOrange border border-burntOrange/40 font-mono font-medium">Loop Tracing</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Interactive For & While Loop Practice Activity</p>
+                    <p class="text-[11px] text-slate-400">Interactive For & While Loop Practice Activity</p>
                 </div>
             </div>
 
-            <!-- Student Profile & Live Clock -->
-            <div class="flex items-center gap-4 flex-wrap">
-                <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl p-2 px-3 flex items-center gap-3">
+            <!-- Middle/Right Header Panel: Student Name, Live Progress & Accuracy, Date -->
+            <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
+                
+                <!-- Student Name Input -->
+                <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl p-1.5 px-3 flex items-center gap-2 shadow-inner">
                     <div class="text-left">
-                        <label for="student-name-input" class="block text-[10px] uppercase font-bold text-burntOrange tracking-wider">Student First Name</label>
-                        <input type="text" id="student-name-input" placeholder="Enter first name..." 
-                            class="bg-transparent text-sm font-semibold text-white focus:outline-none placeholder-slate-500 border-b border-transparent focus:border-burntOrange transition-colors w-32 sm:w-40" />
+                        <label for="student-name-input" class="block text-[9px] uppercase font-bold text-burntOrange tracking-wider">Student Name</label>
+                        <input type="text" id="student-name-input" placeholder="First Name..." 
+                            class="bg-transparent text-xs font-semibold text-white focus:outline-none placeholder-slate-500 border-b border-transparent focus:border-burntOrange transition-colors w-28 sm:w-36" />
                     </div>
-                    <span id="name-save-badge" class="hidden text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Saved</span>
+                    <span id="name-save-badge" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.5 rounded font-mono">Saved</span>
                 </div>
 
-                <div class="hidden md:flex flex-col text-right text-xs text-slate-400 font-mono">
+                <!-- TOP PROGRESS & ACCURACY WIDGET -->
+                <div class="bg-slate-900/90 border border-slate-700/60 rounded-xl px-3 py-1.5 flex items-center gap-3 shadow-inner">
+                    <!-- Progress towards 10 correct -->
+                    <div class="text-center">
+                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Goal Progress</div>
+                        <div class="text-xs font-bold font-mono text-emerald-400" id="header-score-text">0 / 10 Correct</div>
+                    </div>
+
+                    <!-- Visual Progress Bar -->
+                    <div class="w-16 sm:w-24 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/50">
+                        <div id="header-progress-bar" class="bg-burntOrange h-full w-0 transition-all duration-300"></div>
+                    </div>
+
+                    <!-- Accuracy Stats (Correct vs Total Attempts) -->
+                    <div class="border-l border-slate-800 pl-3 text-left">
+                        <div class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Accuracy</div>
+                        <div class="text-xs font-bold font-mono text-burntOrange" id="header-accuracy-text">0% <span class="text-[10px] text-slate-400 font-normal">(0 attempts)</span></div>
+                    </div>
+                </div>
+
+                <!-- Live Clock -->
+                <div class="hidden lg:flex flex-col text-right text-[11px] text-slate-400 font-mono pl-1">
                     <span id="live-date">--</span>
                     <span id="live-time" class="text-slate-300 font-semibold">--</span>
                 </div>
@@ -124,124 +148,89 @@
     </header>
 
     <!-- Main Container -->
-    <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
 
-        <!-- Top Control Dashboard & Score Summary -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            <!-- Left Info & Filter Bar -->
-            <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between space-y-4">
-                <div class="flex flex-wrap justify-between items-start gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <span>💻</span> Tracing Problem Set
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">
-                            Analyze each Python snippet carefully. Calculate final values, total iterations, or exact printed outputs.
-                        </p>
-                    </div>
-
-                    <!-- Category Filter -->
-                    <div class="flex items-center gap-2">
-                        <label for="filter-select" class="text-xs font-semibold text-slate-400">Filter:</label>
-                        <select id="filter-select" class="bg-slate-800 text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-burntOrange font-mono cursor-pointer">
-                            <option value="all">All Loop Types (Mixed 10)</option>
-                            <option value="for_range">For Loops (range)</option>
-                            <option value="while">While Loops Only</option>
-                            <option value="negative_step">Negative Range Steps</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Action Controls Bar -->
-                <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800/80">
-                    <button id="btn-new-batch" class="bg-burntOrange hover:bg-burntOrangeDark text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-lg shadow-burntOrange/20 flex items-center gap-2">
-                        <span>🔄</span> Generate New Question Set
-                    </button>
-                    
-                    <button id="btn-print-pdf" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2">
-                        <span>📄</span> Export as PDF
-                    </button>
-
-                    <span class="text-xs text-slate-500 italic ml-auto hidden sm:inline">10 Random Questions per Batch</span>
-                </div>
+        <!-- Control Bar & Filter Dashboard -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-wrap justify-between items-center gap-4">
+            <div>
+                <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    <span>💻</span> Loop Tracing Problem Set
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">
+                    Trace each loop carefully. Type your answer and click <strong>Check Answer</strong>. Incorrect answers lock the question until you click <strong>Try Again</strong>!
+                </p>
             </div>
 
-            <!-- Right Score Card -->
-            <div class="lg:col-span-4 bg-gradient-to-br from-slate-900 to-utNavy border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs uppercase font-extrabold text-burntOrange tracking-wider">Activity Progress</span>
-                    <span id="score-percentage-chip" class="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                        0% Accuracy
-                    </span>
+            <!-- Action Buttons & Category Filter -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <label for="filter-select" class="text-xs font-semibold text-slate-400">Filter:</label>
+                    <select id="filter-select" class="bg-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-burntOrange font-mono cursor-pointer">
+                        <option value="all">All Loop Types (Mixed 10)</option>
+                        <option value="for_range">For Loops (range)</option>
+                        <option value="while">While Loops Only</option>
+                        <option value="negative_step">Negative Range Steps</option>
+                    </select>
                 </div>
 
-                <div class="my-3 flex items-baseline justify-between">
-                    <div>
-                        <div class="text-3xl sm:text-4xl font-extrabold text-white font-mono" id="score-counter">0 / 10</div>
-                        <div class="text-xs text-slate-400 mt-1">Questions Answered Correctly</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-lg font-bold text-slate-300 font-mono" id="attempted-counter">0 Attempted</div>
-                        <div class="text-xs text-slate-500">out of 10 total</div>
-                    </div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700/50">
-                    <div id="progress-bar-fill" class="bg-burntOrange h-full w-0 transition-all duration-500"></div>
-                </div>
+                <button id="btn-new-batch" class="bg-burntOrange hover:bg-burntOrangeDark text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-lg shadow-burntOrange/20 flex items-center gap-1.5">
+                    <span>🔄</span> New Set
+                </button>
+                
+                <button id="btn-print-pdf" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5">
+                    <span>📄</span> Export PDF
+                </button>
             </div>
         </div>
 
-        <!-- Questions Feed Area -->
-        <div id="questions-container" class="space-y-6">
+        <!-- Questions Feed Container -->
+        <div id="questions-container" class="space-y-5">
             <!-- Dynamic Question Cards Inserted Here via JS -->
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="no-print bg-slate-950 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 mt-auto">
+    <footer class="no-print bg-slate-950 border-t border-slate-800/80 py-5 text-center text-xs text-slate-500 mt-auto">
         <p>UT Austin OnRamps Computer Science — Interactive Loop Tracing Activity</p>
-        <p class="mt-1 text-slate-600">Designed for static deployment on GitHub Pages</p>
+        <p class="mt-0.5 text-slate-600">Static single-file deployment for GitHub Pages</p>
     </footer>
 
     <!-- Clean Printable PDF Report View -->
     <div id="print-report">
-        <div style="border-bottom: 2px solid #BF5700; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="border-bottom: 2px solid #BF5700; padding-bottom: 12px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
-                <h1 style="font-size: 20px; font-weight: bold; color: #13294B; margin: 0;">UT Austin OnRamps CS - Loop Tracing Report</h1>
-                <p style="font-size: 11px; color: #475569; margin-top: 4px;">Student Self-Assessment & Execution Summary</p>
+                <h1 style="font-size: 18px; font-weight: bold; color: #13294B; margin: 0;">UT Austin OnRamps CS - Loop Tracing Report</h1>
+                <p style="font-size: 10px; color: #475569; margin-top: 3px;">Student Self-Assessment & Execution Summary</p>
             </div>
-            <div style="text-align: right; font-size: 11px; font-family: monospace;">
+            <div style="text-align: right; font-size: 10px; font-family: monospace;">
                 <div><strong>UT OnRamps CS</strong></div>
                 <div id="print-date"></div>
             </div>
         </div>
 
         <!-- Student Meta Header -->
-        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; font-size: 12px;">
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 18px; display: flex; justify-content: space-between; font-size: 11px;">
             <div>
                 <span><strong>Student Name:</strong> <span id="print-student-name" style="color: #BF5700; font-weight: bold;">Anonymous</span></span>
             </div>
             <div>
-                <span><strong>Score:</strong> <span id="print-score-text">0 / 10</span></span>
-                <span style="margin-left: 15px;"><strong>Accuracy:</strong> <span id="print-accuracy-text">0%</span></span>
+                <span><strong>Goal Progress:</strong> <span id="print-score-text">0 / 10 Correct</span></span>
+                <span style="margin-left: 15px;"><strong>Overall Accuracy:</strong> <span id="print-accuracy-text">0%</span></span>
             </div>
         </div>
 
         <!-- Detailed Results Table -->
-        <h2 style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #0f172a;">Itemized Tracing Results</h2>
+        <h2 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #0f172a;">Itemized Tracing Results</h2>
         <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
             <thead>
                 <tr style="background-color: #13294B; color: white;">
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 6%;">#</th>
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 44%;">Python Code Snippet</th>
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 22%;">Question Prompt</th>
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 12%;">Your Answer</th>
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 10%;">Correct Key</th>
-                    <th style="padding: 6px; border: 1px solid #cbd5e1; width: 6%;">Status</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 5%;">#</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 45%;">Python Code Snippet</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 23%;">Question Prompt</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 12%;">Your Answer</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 9%;">Correct Key</th>
+                    <th style="padding: 5px; border: 1px solid #cbd5e1; width: 6%;">Status</th>
                 </tr>
             </thead>
             <tbody id="print-table-body">
@@ -250,20 +239,22 @@
         </table>
 
         <!-- Signature / Verification Footer -->
-        <div style="margin-top: 35px; border-top: 1px dashed #cbd5e1; padding-top: 12px; display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
+        <div style="margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; font-size: 9px; color: #64748b;">
             <div>Student Signature: ___________________________</div>
             <div>Teacher Verification: ___________________________</div>
         </div>
     </div>
 
-    <!-- Application Script Logic -->
+    <!-- Application Logic -->
     <script>
         // Global Application State
         const STATE = {
             studentName: localStorage.getItem('onramps_student_name') || '',
             questions: [],
-            totalQuestions: 10,
-            filter: 'all'
+            totalGoal: 10,
+            filter: 'all',
+            totalAttempts: 0,       // Tracks all check attempts (including wrong ones and retries)
+            totalCorrectAttempts: 0 // Tracks successful checks
         };
 
         // Utility: Random Integer in Range [min, max]
@@ -312,7 +303,7 @@
             return Math.floor(a / b);
         }
 
-        // Python Syntax Highlighter Engine (Escapes HTML safely before tokenizing keywords and numbers)
+        // Python Syntax Highlighter Engine
         function highlightPython(code) {
             return code
                 .split('\n')
@@ -335,7 +326,7 @@
          * LOOP GENERATOR ENGINE (Strict 3-6 Iteration Guarantee)
          * ---------------------------------------------------- */
 
-        // 1. For Loop with 1-arg range(stop) - Accumulator [Positive, 3-6 iterations]
+        // 1. For Loop with 1-arg range(stop) - Accumulator
         function genForSingleArgRange() {
             const iterations = randInt(3, 6);
             const stop = iterations; 
@@ -387,7 +378,7 @@
             };
         }
 
-        // 2. For Loop with 2-arg range(start, stop) - [Positive step 1, start < stop, 3-6 iterations]
+        // 2. For Loop with 2-arg range(start, stop)
         function genForTwoArgRange() {
             const iterations = randInt(3, 6);
             const start = randInt(1, 5);
@@ -437,7 +428,7 @@
             };
         }
 
-        // 3. For Loop with 3-arg range(start, stop, step) - Positive Step [start < stop, 3-6 iterations]
+        // 3. For Loop with 3-arg range(start, stop, step) - Positive Step
         function genForThreeArgPositiveStep() {
             const iterations = randInt(3, 6);
             const step = randChoice([2, 3, 4]);
@@ -489,7 +480,7 @@
             };
         }
 
-        // 4. For Loop with 3-arg range(start, stop, step) - Negative Step [start > stop, 3-6 iterations]
+        // 4. For Loop with 3-arg range(start, stop, step) - Negative Step
         function genForThreeArgNegativeStep() {
             const iterations = randInt(3, 6);
             const stepMag = randChoice([2, 3, 4]);
@@ -542,7 +533,7 @@
             };
         }
 
-        // 5. While Loop with Integer Division (//) - [3-6 iterations]
+        // 5. While Loop with Integer Division (//)
         function genWhileIntegerDivision() {
             const targetIterations = randInt(3, 5);
             let num = 10;
@@ -595,7 +586,7 @@
             };
         }
 
-        // 6. While Loop with Decrement [3-6 iterations]
+        // 6. While Loop with Decrement
         function genWhileDecrement() {
             const iterations = randInt(3, 6);
             const stepVal = randChoice([2, 3, 4]);
@@ -644,7 +635,7 @@
             };
         }
 
-        // 7. Printed Output Question - For Loop [3-6 iterations, Positive Step]
+        // 7. Printed Output Question - For Loop
         function genForPrintOutput() {
             const iterations = randInt(3, 6);
             const step = randChoice([2, 3]);
@@ -693,7 +684,7 @@
             };
         }
 
-        // 8. Negative Step Range Loop with Floor Division [start > stop, 3-6 iterations]
+        // 8. Negative Step Range Loop with Floor Division
         function genNegativeRangeWithFloorDiv() {
             const iterations = randInt(3, 6);
             const stepMag = randChoice([3, 4]);
@@ -743,7 +734,7 @@
             };
         }
 
-        // 9. Range Loop with Negative Bounds [-5 to 5, start < stop, 3-6 iterations]
+        // 9. Range Loop with Negative Bounds
         function genNegativeBoundsRange() {
             const iterations = randInt(4, 6);
             const step = randChoice([2, 3]);
@@ -792,7 +783,7 @@
             };
         }
 
-        // 10. Dual Variable While Loop [3-6 iterations]
+        // 10. Dual Variable While Loop
         function genDualVariableWhile() {
             const iterations = randInt(3, 5);
             let m = randInt(1, 3);
@@ -869,7 +860,7 @@
          * APPLICATION CORE CONTROLLER & ANSWER VERIFICATION
          * ---------------------------------------------------- */
 
-        // Normalize student output string for flexible print/value matching
+        // Normalize student output string
         function normalizeAnswer(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -879,13 +870,13 @@
                 .replace(/\s+/g, ' ');
         }
 
-        // Generate 10-Question Batch with ~15% probability for negative steps in "all" mode
+        // Generate Batch of Questions
         function generateBatch(filterCategory = 'all') {
             STATE.questions = [];
             STATE.filter = filterCategory;
 
             let attempts = 0;
-            while (STATE.questions.length < STATE.totalQuestions && attempts < 300) {
+            while (STATE.questions.length < STATE.totalGoal && attempts < 300) {
                 attempts++;
                 const factory = randChoice(GENERATOR_POOL);
                 const q = factory();
@@ -893,7 +884,6 @@
                 let shouldInclude = false;
 
                 if (filterCategory === 'all') {
-                    // ~15% chance of negative step problem, ~85% positive
                     const wantNegative = Math.random() < 0.15;
                     if (wantNegative && q.isNegativeStep) {
                         shouldInclude = true;
@@ -912,14 +902,13 @@
                         ...q,
                         userAnswer: '',
                         status: 'unanswered', // 'unanswered', 'correct', 'incorrect'
-                        attemptsCount: 0,
                         showTrace: false
                     });
                 }
             }
 
             renderQuestions();
-            updateScoreDashboard();
+            updateTopHeaderWidget();
         }
 
         // Render All Question Cards into HTML
@@ -929,9 +918,8 @@
 
             STATE.questions.forEach((q, index) => {
                 const card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl transition-all duration-300 relative overflow-hidden";
+                card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl transition-all duration-300 relative overflow-hidden";
                 
-                // Status Border Highlight
                 if (q.status === 'correct') {
                     card.classList.add('border-emerald-500/50', 'ring-1', 'ring-emerald-500/30');
                 } else if (q.status === 'incorrect') {
@@ -940,40 +928,40 @@
 
                 card.innerHTML = `
                     <!-- Card Top Header -->
-                    <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-3 border-b border-slate-800">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-3 pb-2.5 border-b border-slate-800">
                         <div class="flex items-center gap-2">
-                            <span class="px-3 py-1 rounded-lg bg-burntOrange/20 text-burntOrange border border-burntOrange/40 text-xs font-bold font-mono flex items-center justify-center">
+                            <span class="px-2.5 py-0.5 rounded-lg bg-burntOrange/20 text-burntOrange border border-burntOrange/40 text-xs font-bold font-mono">
                                 Question #${q.id}
                             </span>
                         </div>
 
                         <div class="flex items-center gap-2">
-                            ${q.status === 'correct' ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1">✓ Correct</span>' : ''}
-                            ${q.status === 'incorrect' ? '<span class="text-xs bg-rose-500/20 text-rose-400 font-bold px-3 py-1 rounded-full border border-rose-500/30 flex items-center gap-1">✕ Incorrect (Locked)</span>' : ''}
+                            ${q.status === 'correct' ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">✓ Correct</span>' : ''}
+                            ${q.status === 'incorrect' ? '<span class="text-xs bg-rose-500/20 text-rose-400 font-bold px-2.5 py-0.5 rounded-full border border-rose-500/30 flex items-center gap-1">✕ Incorrect (Locked)</span>' : ''}
                         </div>
                     </div>
 
                     <!-- Code Snippet Area -->
-                    <div class="relative bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto shadow-inner mb-4">
-                        <div class="absolute top-2 right-3 text-[10px] uppercase font-bold text-slate-600 tracking-wider">Python 3</div>
+                    <div class="relative bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto shadow-inner mb-3">
+                        <div class="absolute top-2 right-3 text-[9px] uppercase font-bold text-slate-600 tracking-wider">Python 3</div>
                         <pre class="leading-relaxed"><code>${highlightPython(q.code)}</code></pre>
                     </div>
 
                     <!-- Prompt Text -->
-                    <div class="mb-4 text-sm sm:text-base font-medium text-slate-200 bg-slate-800/40 border border-slate-800 rounded-xl p-3.5">
+                    <div class="mb-3 text-xs sm:text-sm font-medium text-slate-200 bg-slate-800/40 border border-slate-800 rounded-xl p-3">
                         <span class="text-burntOrange font-bold mr-1">Question:</span> ${q.prompt}
                     </div>
 
                     <!-- Interactive Input Area -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="flex-grow min-w-[200px]">
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <div class="flex-grow min-w-[180px]">
                             <input 
                                 type="text" 
                                 id="input-q-${index}" 
                                 value="${q.userAnswer}" 
                                 placeholder="${q.targetType === 'print_out' ? 'e.g. 6 12 or None' : 'Enter numeric value...'}"
                                 ${q.status !== 'unanswered' ? 'disabled' : ''}
-                                class="w-full bg-slate-950 border ${q.status === 'correct' ? 'border-emerald-500/50 text-emerald-300' : (q.status === 'incorrect' ? 'border-rose-500/50 text-rose-300 bg-slate-900/80 cursor-not-allowed' : 'border-slate-700 text-white')} rounded-xl px-4 py-2.5 text-sm font-mono focus:outline-none focus:border-burntOrange transition-colors"
+                                class="w-full bg-slate-950 border ${q.status === 'correct' ? 'border-emerald-500/50 text-emerald-300' : (q.status === 'incorrect' ? 'border-rose-500/50 text-rose-300 bg-slate-900/80 cursor-not-allowed' : 'border-slate-700 text-white')} rounded-xl px-3.5 py-2 text-xs sm:text-sm font-mono focus:outline-none focus:border-burntOrange transition-colors"
                                 onkeydown="if(event.key === 'Enter' && STATE.questions[${index}].status === 'unanswered') checkQuestion(${index})"
                             />
                         </div>
@@ -981,7 +969,7 @@
                         <button 
                             onclick="checkQuestion(${index})" 
                             ${q.status !== 'unanswered' ? 'disabled' : ''}
-                            class="${q.status !== 'unanswered' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-burntOrange hover:bg-burntOrangeDark text-white'} px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-md flex items-center gap-1.5"
+                            class="${q.status !== 'unanswered' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-burntOrange hover:bg-burntOrangeDark text-white'} px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-md flex items-center gap-1"
                         >
                             <span>Check Answer</span>
                         </button>
@@ -989,7 +977,7 @@
                         ${q.status === 'incorrect' ? `
                             <button 
                                 onclick="regenerateSingleQuestion(${index})"
-                                class="bg-burntOrange hover:bg-burntOrangeDark text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-burntOrange/20 transition-all duration-200 flex items-center gap-1.5 animate-pulse"
+                                class="bg-burntOrange hover:bg-burntOrangeDark text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-burntOrange/20 transition-all duration-200 flex items-center gap-1.5 animate-pulse"
                             >
                                 <span>🔄</span> Try Again (New Values)
                             </button>
@@ -1005,48 +993,48 @@
                         ` : ''}
                     </div>
 
-                    <!-- Feedback Alert Banner -->
+                    <!-- Feedback Alert Banners -->
                     ${q.status === 'correct' ? `
-                        <div class="mt-4 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
-                            <span class="text-base">🎉</span>
-                            <span><strong>Spot on!</strong> Your response matches the execution output perfectly.</span>
+                        <div class="mt-3 p-2.5 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
+                            <span class="text-sm">🎉</span>
+                            <span><strong>Spot on!</strong> Your answer matches execution output.</span>
                         </div>
                     ` : ''}
 
                     ${q.status === 'incorrect' ? `
-                        <div class="mt-4 p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center justify-between">
+                        <div class="mt-3 p-2.5 bg-rose-950/40 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <span class="text-base">🔒</span>
+                                <span class="text-sm">🔒</span>
                                 <span><strong>Incorrect!</strong> Question locked. Click <strong>"Try Again (New Values)"</strong> to practice this same loop type with new numbers!</span>
                             </div>
                         </div>
                     ` : ''}
 
-                    <!-- Execution Trace Table Accordion (Hidden until question is answered) -->
+                    <!-- Execution Trace Accordion -->
                     ${q.showTrace && q.status !== 'unanswered' ? `
-                        <div class="mt-5 pt-4 border-t border-slate-800">
+                        <div class="mt-4 pt-3 border-t border-slate-800">
                             <h4 class="text-xs font-bold uppercase text-burntOrange tracking-wider mb-2 flex items-center gap-1">
                                 📊 Step-by-Step Variable Trace
                             </h4>
                             <div class="overflow-x-auto rounded-xl border border-slate-800">
                                 <table class="w-full text-left text-xs font-mono text-slate-300">
-                                    <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+                                    <thead class="bg-slate-950 text-slate-400 uppercase text-[9px] border-b border-slate-800">
                                         <tr>
-                                            <th class="p-2.5">Step #</th>
-                                            <th class="p-2.5">Loop Condition / Control</th>
-                                            <th class="p-2.5">Branch Executed</th>
-                                            <th class="p-2.5">Variable State Updates</th>
-                                            <th class="p-2.5">Printed Output</th>
+                                            <th class="p-2">Step #</th>
+                                            <th class="p-2">Loop Condition / Control</th>
+                                            <th class="p-2">Branch Executed</th>
+                                            <th class="p-2">Variable Updates</th>
+                                            <th class="p-2">Printed Output</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-800/60 bg-slate-900/60">
                                         ${q.trace.map(t => `
                                             <tr class="hover:bg-slate-800/40 transition-colors">
-                                                <td class="p-2.5 text-slate-400 font-bold">${t.step}</td>
-                                                <td class="p-2.5 text-cyan-300">${t.control}</td>
-                                                <td class="p-2.5 text-amber-300">${t.branch}</td>
-                                                <td class="p-2.5 text-slate-200">${t.action}</td>
-                                                <td class="p-2.5 ${t.printed !== '-' ? 'text-emerald-400 font-bold' : 'text-slate-600'}">${t.printed}</td>
+                                                <td class="p-2 text-slate-400 font-bold">${t.step}</td>
+                                                <td class="p-2 text-cyan-300">${t.control}</td>
+                                                <td class="p-2 text-amber-300">${t.branch}</td>
+                                                <td class="p-2 text-slate-200">${t.action}</td>
+                                                <td class="p-2 ${t.printed !== '-' ? 'text-emerald-400 font-bold' : 'text-slate-600'}">${t.printed}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -1060,10 +1048,10 @@
             });
         }
 
-        // Check Answer Logic with Strict Verification
+        // Check Answer & Accumulate Attempt Metrics
         function checkQuestion(index) {
             const q = STATE.questions[index];
-            if (q.status !== 'unanswered') return; // Prevent re-evaluating locked questions
+            if (q.status !== 'unanswered') return;
 
             const input = document.getElementById(`input-q-${index}`);
             if (!input) return;
@@ -1072,39 +1060,41 @@
             if (!userVal.trim()) return;
 
             q.userAnswer = userVal;
-            q.attemptsCount++;
+            
+            // Increment Session Attempt History
+            STATE.totalAttempts++;
 
             const normUser = normalizeAnswer(userVal);
             const normCorrect = normalizeAnswer(q.answer);
 
             if (normUser === normCorrect) {
                 q.status = 'correct';
+                STATE.totalCorrectAttempts++;
             } else {
-                q.status = 'incorrect'; // Locks input field and check button
+                q.status = 'incorrect'; // Locks question
             }
 
             renderQuestions();
-            updateScoreDashboard();
+            updateTopHeaderWidget();
         }
 
-        // Regenerate a single question preserving its EXACT factory type (e.g. while stays while)
+        // Regenerate single question slot preserving EXACT generator factory
         function regenerateSingleQuestion(index) {
             const oldQ = STATE.questions[index];
             const factory = FACTORY_MAP[oldQ.factoryId];
             
-            // Re-execute same generator factory to produce new numbers for same loop category
             const newQ = factory ? factory() : randChoice(GENERATOR_POOL)();
 
             STATE.questions[index] = {
                 id: index + 1,
                 ...newQ,
                 userAnswer: '',
-                status: 'unanswered', // Resets back to unanswered -> unlocks input field & check button
-                attemptsCount: 0,
+                status: 'unanswered', // Unlocks card for fresh attempt
                 showTrace: false
             };
+
             renderQuestions();
-            updateScoreDashboard();
+            updateTopHeaderWidget();
         }
 
         // Toggle Trace Accordion
@@ -1113,16 +1103,24 @@
             renderQuestions();
         }
 
-        // Update Score Dashboard & Header Stats
-        function updateScoreDashboard() {
-            const correctCount = STATE.questions.filter(q => q.status === 'correct').length;
-            const attemptedCount = STATE.questions.filter(q => q.status !== 'unanswered').length;
-            const percentage = attemptedCount > 0 ? Math.round((correctCount / STATE.totalQuestions) * 100) : 0;
+        // Update Top Nav Header Progress and Accuracy Widget
+        function updateTopHeaderWidget() {
+            const currentlyCorrect = STATE.questions.filter(q => q.status === 'correct').length;
+            const accuracyPercent = STATE.totalAttempts > 0 
+                ? Math.round((STATE.totalCorrectAttempts / STATE.totalAttempts) * 100) 
+                : 0;
 
-            document.getElementById('score-counter').innerText = `${correctCount} / ${STATE.totalQuestions}`;
-            document.getElementById('attempted-counter').innerText = `${attemptedCount} Attempted`;
-            document.getElementById('score-percentage-chip').innerText = `${percentage}% Accuracy`;
-            document.getElementById('progress-bar-fill').style.width = `${(correctCount / STATE.totalQuestions) * 100}%`;
+            // Goal Text (x/10 Correct)
+            document.getElementById('header-score-text').innerText = `${currentlyCorrect} / ${STATE.totalGoal} Correct`;
+            
+            // Progress Bar %
+            const goalPercent = Math.min(100, Math.round((currentlyCorrect / STATE.totalGoal) * 100));
+            document.getElementById('header-progress-bar').style.width = `${goalPercent}%`;
+
+            // Accuracy % and Total Attempts string
+            document.getElementById('header-accuracy-text').innerHTML = `
+                ${accuracyPercent}% <span class="text-[10px] text-slate-400 font-normal">(${STATE.totalAttempts} ${STATE.totalAttempts === 1 ? 'attempt' : 'attempts'})</span>
+            `;
         }
 
         /* ----------------------------------------------------
@@ -1130,7 +1128,6 @@
          * ---------------------------------------------------- */
 
         function prepareAndTriggerPrint() {
-            // Ensure student first name is captured
             let name = STATE.studentName.trim();
             if (!name) {
                 name = prompt("Please enter your First Name for the report header:", "") || "Anonymous Student";
@@ -1141,18 +1138,17 @@
                 }
             }
 
-            // Populate Print View Metadata
             document.getElementById('print-student-name').innerText = name || "Anonymous Student";
             document.getElementById('print-date').innerText = new Date().toLocaleString();
 
-            const correctCount = STATE.questions.filter(q => q.status === 'correct').length;
-            const attemptedCount = STATE.questions.filter(q => q.status !== 'unanswered').length;
-            const accuracy = attemptedCount > 0 ? Math.round((correctCount / STATE.totalQuestions) * 100) : 0;
+            const currentlyCorrect = STATE.questions.filter(q => q.status === 'correct').length;
+            const accuracyPercent = STATE.totalAttempts > 0 
+                ? Math.round((STATE.totalCorrectAttempts / STATE.totalAttempts) * 100) 
+                : 0;
 
-            document.getElementById('print-score-text').innerText = `${correctCount} / ${STATE.totalQuestions} Correct`;
-            document.getElementById('print-accuracy-text').innerText = `${accuracy}%`;
+            document.getElementById('print-score-text').innerText = `${currentlyCorrect} / ${STATE.totalGoal} Correct Goal`;
+            document.getElementById('print-accuracy-text').innerText = `${accuracyPercent}% (${STATE.totalAttempts} total attempts)`;
 
-            // Build Summary Table Rows
             const tbody = document.getElementById('print-table-body');
             tbody.innerHTML = '';
 
@@ -1162,10 +1158,10 @@
                 
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #cbd5e1; font-weight: bold; text-align: center;">#${q.id}</td>
-                    <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; white-space: pre-wrap; font-size: 9px;">${q.code}</td>
+                    <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; white-space: pre-wrap; font-size: 8.5px;">${q.code}</td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1;">
                         <div style="font-weight: bold;">Question #${q.id}</div>
-                        <div style="color: #475569; font-size: 9px; margin-top: 2px;">${q.prompt.replace(/<[^>]*>?/gm, '')}</div>
+                        <div style="color: #475569; font-size: 8.5px; margin-top: 2px;">${q.prompt.replace(/<[^>]*>?/gm, '')}</div>
                     </td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; font-weight: bold;">
                         ${q.userAnswer || '<span style="color: #94a3b8;">Not Answered</span>'}
@@ -1180,12 +1176,11 @@
                 tbody.appendChild(tr);
             });
 
-            // Invoke Native Browser PDF Print Dialog
             window.print();
         }
 
         /* ----------------------------------------------------
-         * INITIALIZATION & EVENT LISTENERS
+         * INITIALIZATION
          * ---------------------------------------------------- */
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -1196,7 +1191,7 @@
                 document.getElementById('live-time').innerText = now.toLocaleTimeString();
             }, 1000);
 
-            // Restore Student Name if saved
+            // Student Name Input
             const nameInput = document.getElementById('student-name-input');
             if (STATE.studentName) {
                 nameInput.value = STATE.studentName;
@@ -1211,12 +1206,12 @@
                 setTimeout(() => badge.classList.add('hidden'), 1500);
             });
 
-            // Filter Change Event
+            // Filter Dropdown Change
             document.getElementById('filter-select').addEventListener('change', (e) => {
                 generateBatch(e.target.value);
             });
 
-            // Action Buttons
+            // Buttons
             document.getElementById('btn-new-batch').addEventListener('click', () => {
                 generateBatch(document.getElementById('filter-select').value);
             });
@@ -1225,7 +1220,7 @@
                 prepareAndTriggerPrint();
             });
 
-            // Initial Batch Generation
+            // Start Activity Batch
             generateBatch('all');
         });
     </script>
