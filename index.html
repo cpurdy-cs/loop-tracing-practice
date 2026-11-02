@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnRamps CS - Loop Tracing Practice</title>
+    <title>OnRamps CS - Loop Tracing Assessment</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Fira Code -->
@@ -99,9 +99,9 @@
                 </div>
                 <div>
                     <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                        OnRamps CS <span class="text-[10px] px-2 py-0.5 rounded-full bg-burntOrange/20 text-burntOrange border border-burntOrange/40 font-mono font-medium">Loop Tracing</span>
+                        OnRamps CS <span class="text-[10px] px-2 py-0.5 rounded-full bg-burntOrange/20 text-burntOrange border border-burntOrange/40 font-mono font-medium">Loop Tracing Assessment</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">Interactive For & While Loop Practice Activity</p>
+                    <p class="text-[11px] text-slate-400">Interactive For &amp; While Loop Practice Activity</p>
                 </div>
             </div>
 
@@ -167,8 +167,12 @@
                     <label for="filter-select" class="text-xs font-semibold text-slate-400">Filter:</label>
                     <select id="filter-select" class="bg-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-burntOrange font-mono cursor-pointer">
                         <option value="all">All Loop Types (Mixed 10)</option>
-                        <option value="for_range">For Loops (range)</option>
-                        <option value="while">While Loops Only</option>
+                        <option value="for_single">Single For Loops (range)</option>
+                        <option value="for_seq">For Loops (Strings &amp; Lists)</option>
+                        <option value="while_single">Single While Loops</option>
+                        <option value="nested_for">Nested For Loops</option>
+                        <option value="nested_while">Nested While Loops</option>
+                        <option value="nested_combo">Combination Nested Loops</option>
                         <option value="negative_step">Negative Range Steps</option>
                     </select>
                 </div>
@@ -192,19 +196,18 @@
 
     <!-- Footer -->
     <footer class="no-print bg-slate-950 border-t border-slate-800/80 py-5 text-center text-xs text-slate-500 mt-auto">
-        <p>UT Austin OnRamps Computer Science — Interactive Loop Tracing Activity</p>
-        <p class="mt-0.5 text-slate-600">Static single-file deployment for GitHub Pages</p>
+        <p>OnRamps Computer Science — Interactive Loop Tracing Activity</p>
     </footer>
 
     <!-- Clean Printable PDF Report View -->
     <div id="print-report">
         <div style="border-bottom: 2px solid #BF5700; padding-bottom: 12px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
-                <h1 style="font-size: 18px; font-weight: bold; color: #13294B; margin: 0;">UT Austin OnRamps CS - Loop Tracing Report</h1>
-                <p style="font-size: 10px; color: #475569; margin-top: 3px;">Student Self-Assessment & Execution Summary</p>
+                <h1 style="font-size: 18px; font-weight: bold; color: #13294B; margin: 0;">OnRamps CS - Loop Tracing Assessment Report</h1>
+                <p style="font-size: 10px; color: #475569; margin-top: 3px;">Student Self-Assessment &amp; Execution Summary</p>
             </div>
             <div style="text-align: right; font-size: 10px; font-family: monospace;">
-                <div><strong>UT OnRamps CS</strong></div>
+                <div><strong>OnRamps CS</strong></div>
                 <div id="print-date"></div>
             </div>
         </div>
@@ -303,7 +306,7 @@
             return Math.floor(a / b);
         }
 
-        // Python Syntax Highlighter Engine
+        // Python Syntax Highlighter Engine (Handles Strings & Comments Cleanly)
         function highlightPython(code) {
             return code
                 .split('\n')
@@ -313,17 +316,32 @@
                         .replace(/</g, "&lt;")
                         .replace(/>/g, "&gt;");
 
-                    return escaped
+                    // Temporarily replace string literals to avoid highlighting keywords inside quotes
+                    const strings = [];
+                    escaped = escaped.replace(/(["'])(.*?)\1/g, (match) => {
+                        strings.push(match);
+                        return `___STR_${strings.length - 1}___`;
+                    });
+
+                    // Highlight Python syntax elements
+                    escaped = escaped
                         .replace(/(#.*)/g, '<span class="py-comment">$1</span>')
-                        .replace(/\b(for|in|range|while|if|elif|else|print|abs)\b/g, '<span class="py-keyword">$1</span>')
+                        .replace(/\b(for|in|range|len|while|if|elif|else|print|abs)\b/g, '<span class="py-keyword">$1</span>')
                         .replace(/\b(True|False|None)\b/g, '<span class="py-func">$1</span>')
                         .replace(/\b(\d+)\b/g, '<span class="py-number">$1</span>');
+
+                    // Restore highlighted strings
+                    escaped = escaped.replace(/___STR_(\d+)___/g, (_, idx) => {
+                        return `<span class="text-emerald-300 font-medium">${strings[idx]}</span>`;
+                    });
+
+                    return escaped;
                 })
                 .join('\n');
         }
 
         /* ----------------------------------------------------
-         * LOOP GENERATOR ENGINE (Strict 3-6 Iteration Guarantee)
+         * SINGLE RANGE LOOP GENERATOR ENGINE
          * ---------------------------------------------------- */
 
         // 1. For Loop with 1-arg range(stop) - Accumulator
@@ -368,7 +386,7 @@
             return {
                 factoryId: 'genForSingleArgRange',
                 type: 'For Loop (1-arg range)',
-                category: 'for_range',
+                category: 'for_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -418,7 +436,7 @@
             return {
                 factoryId: 'genForTwoArgRange',
                 type: 'For Loop (2-arg range)',
-                category: 'for_range',
+                category: 'for_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -470,7 +488,7 @@
             return {
                 factoryId: 'genForThreeArgPositiveStep',
                 type: 'For Loop (3-arg positive step)',
-                category: 'for_range',
+                category: 'for_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -576,7 +594,7 @@
             return {
                 factoryId: 'genWhileIntegerDivision',
                 type: 'While Loop (Integer Division)',
-                category: 'while',
+                category: 'while_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -625,7 +643,7 @@
             return {
                 factoryId: 'genWhileDecrement',
                 type: 'While Loop (Decrement)',
-                category: 'while',
+                category: 'while_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -635,7 +653,7 @@
             };
         }
 
-        // 7. Printed Output Question - For Loop
+        // 7. Printed Output Question - Single For Loop
         function genForPrintOutput() {
             const iterations = randInt(3, 6);
             const step = randChoice([2, 3]);
@@ -674,7 +692,7 @@
             return {
                 factoryId: 'genForPrintOutput',
                 type: 'For Loop (Printed Output)',
-                category: 'for_range',
+                category: 'for_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -773,7 +791,7 @@
             return {
                 factoryId: 'genNegativeBoundsRange',
                 type: 'For Loop (Negative Bounds)',
-                category: 'for_range',
+                category: 'for_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -818,7 +836,7 @@
             return {
                 factoryId: 'genDualVariableWhile',
                 type: 'While Loop (Dual Variables)',
-                category: 'while',
+                category: 'while_single',
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -828,7 +846,528 @@
             };
         }
 
-        // Pool of all generators
+        /* ----------------------------------------------------
+         * FOR LOOPS OVER STRINGS AND LISTS (NEW)
+         * ---------------------------------------------------- */
+
+        // 11. For Loop - Direct Character Iteration over String
+        function genForStringDirect() {
+            const words = ["onramps", "python", "coding", "lambda", "austin", "vector"];
+            const word = randChoice(words);
+            const vowels = "aeiou";
+            
+            let count = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const char = word[idx];
+                stepCount++;
+                let oldCount = count;
+                let branch = '';
+                if (vowels.includes(char)) {
+                    branch = `if char in "aeiou"`;
+                    count += 2;
+                } else {
+                    branch = `else`;
+                    count += 1;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `char = '${char}'`,
+                    branch: branch,
+                    action: `count: ${oldCount} ➔ ${count}`,
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\ncount = 0\nfor char in word:\n    if char in "aeiou":\n        count += 2\n    else:\n        count += 1`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">count</code>?';
+
+            return {
+                factoryId: 'genForStringDirect',
+                type: 'For Loop (String Direct)',
+                category: 'for_seq',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(count),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 12. For Loop - Index-Based Iteration over String (range(len(text)))
+        function genForStringIndex() {
+            const words = ["computer", "variable", "function", "sequence", "onramps"];
+            const word = randChoice(words);
+            let result = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let i = 0; i < word.length; i++) {
+                stepCount++;
+                let oldResult = result;
+                let branch = '';
+                if (i % 2 === 0) {
+                    branch = `if i % 2 == 0`;
+                    result += word[i];
+                } else {
+                    branch = `else`;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `i = ${i} ('${word[i]}')`,
+                    branch: branch,
+                    action: branch.startsWith('if') ? `result: "${oldResult}" ➔ "${result}"` : 'No change',
+                    printed: '-'
+                });
+            }
+
+            const code = `text = "${word}"\nresult = ""\nfor i in range(len(text)):\n    if i % 2 == 0:\n        result += text[i]`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">result</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForStringIndex',
+                type: 'For Loop (String Index)',
+                category: 'for_seq',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: result,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 13. For Loop - Direct Element Iteration over List of Numbers
+        function genForListDirect() {
+            const len = randInt(4, 6);
+            const nums = [];
+            for (let i = 0; i < len; i++) {
+                nums.push(randInt(2, 9));
+            }
+
+            let total = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (let i = 0; i < nums.length; i++) {
+                const val = nums[i];
+                stepCount++;
+                let oldTotal = total;
+                let branch = '';
+                if (val % 2 === 0) {
+                    branch = `if val % 2 == 0`;
+                    total += val;
+                } else {
+                    branch = `else`;
+                    total += 1;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `val = ${val}`,
+                    branch: branch,
+                    action: `total: ${oldTotal} ➔ ${total}`,
+                    printed: '-'
+                });
+            }
+
+            const code = `numbers = [${nums.join(', ')}]\ntotal = 0\nfor val in numbers:\n    if val % 2 == 0:\n        total += val\n    else:\n        total += 1`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">total</code>?';
+
+            return {
+                factoryId: 'genForListDirect',
+                type: 'For Loop (List Direct)',
+                category: 'for_seq',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(total),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 14. For Loop - Index-Based Iteration over List (range(len(nums)))
+        function genForListIndex() {
+            const len = randInt(4, 5);
+            const nums = [];
+            for (let i = 0; i < len; i++) {
+                nums.push(randInt(1, 10));
+            }
+
+            const threshold = randChoice([4, 5, 6]);
+            let sumVal = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (let i = 0; i < nums.length; i++) {
+                stepCount++;
+                let oldSum = sumVal;
+                let branch = '';
+                if (nums[i] > threshold) {
+                    branch = `if nums[i] > ${threshold}`;
+                    sumVal += nums[i];
+                } else {
+                    branch = `else`;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `i = ${i} (nums[${i}] = ${nums[i]})`,
+                    branch: branch,
+                    action: branch.startsWith('if') ? `sum_val: ${oldSum} ➔ ${sumVal}` : 'No change',
+                    printed: '-'
+                });
+            }
+
+            const code = `nums = [${nums.join(', ')}]\nsum_val = 0\nfor i in range(len(nums)):\n    if nums[i] > ${threshold}:\n        sum_val += nums[i]`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">sum_val</code>?';
+
+            return {
+                factoryId: 'genForListIndex',
+                type: 'For Loop (List Index)',
+                category: 'for_seq',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(sumVal),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        /* ----------------------------------------------------
+         * NESTED LOOP GENERATOR ENGINE
+         * ---------------------------------------------------- */
+
+        // 15. Nested For - Independent Ranges
+        function genNestedForIndependent() {
+            const outerStop = randInt(2, 3);
+            const innerStop = randInt(3, 4);
+            const mod = randChoice([2, 3]);
+
+            let total = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(outerStop)) {
+                for (const j of pyRange(innerStop)) {
+                    stepCount++;
+                    let oldTotal = total;
+                    let branch = '';
+                    if (pyMod(i + j, mod) === 0) {
+                        branch = `if (i + j) % ${mod} == 0`;
+                        total += 2;
+                    } else {
+                        branch = `else`;
+                        total += 1;
+                    }
+                    trace.push({
+                        step: stepCount,
+                        control: `i=${i}, j=${j}`,
+                        branch: branch,
+                        action: `total: ${oldTotal} ➔ ${total}`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `total = 0\nfor i in range(${outerStop}):\n    for j in range(${innerStop}):\n        if (i + j) % ${mod} == 0:\n            total += 2\n        else:\n            total += 1`;
+
+            const target = randChoice(['final_val', 'iterations']);
+            const prompt = target === 'final_val' 
+                ? 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">total</code>?' 
+                : 'How many total times does the inner loop body execute?';
+
+            return {
+                factoryId: 'genNestedForIndependent',
+                type: 'Nested For (Independent Ranges)',
+                category: 'nested_for',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: target === 'final_val' ? String(total) : String(stepCount),
+                targetType: target,
+                trace
+            };
+        }
+
+        // 16. Nested For - Dependent Inner Range (j in range(i))
+        function genNestedForDependent() {
+            const outerStop = randInt(3, 4); // i = 1, 2, (3)
+            let total = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(1, outerStop)) {
+                for (const j of pyRange(i)) {
+                    stepCount++;
+                    let oldTotal = total;
+                    total += j;
+                    trace.push({
+                        step: stepCount,
+                        control: `i=${i}, j=${j}`,
+                        branch: `total += j`,
+                        action: `total: ${oldTotal} ➔ ${total}`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `total = 0\nfor i in range(1, ${outerStop}):\n    for j in range(i):\n        total += j`;
+
+            const target = randChoice(['final_val', 'iterations']);
+            const prompt = target === 'final_val'
+                ? 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">total</code>?'
+                : 'How many total times does the statement <code class="text-burntOrange font-mono font-bold">total += j</code> execute?';
+
+            return {
+                factoryId: 'genNestedForDependent',
+                type: 'Nested For (Dependent Range)',
+                category: 'nested_for',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: target === 'final_val' ? String(total) : String(stepCount),
+                targetType: target,
+                trace
+            };
+        }
+
+        // 17. Nested For - Printed Output
+        function genNestedForPrint() {
+            const outerStart = randInt(1, 2);
+            const outerStop = outerStart + randInt(2, 3);
+            const prints = [];
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(outerStart, outerStop)) {
+                for (const j of pyRange(1, 3)) {
+                    stepCount++;
+                    let printedVal = '-';
+                    let branch = '';
+                    if (pyMod(i * j, 2) === 0) {
+                        branch = `if (i * j) % 2 == 0`;
+                        const val = i * j;
+                        prints.push(val);
+                        printedVal = String(val);
+                    } else {
+                        branch = `else`;
+                    }
+                    trace.push({
+                        step: stepCount,
+                        control: `i=${i}, j=${j}`,
+                        branch: branch,
+                        action: branch.startsWith('if') ? `Printed ${i * j}` : 'No print',
+                        printed: printedVal
+                    });
+                }
+            }
+
+            const code = `for i in range(${outerStart}, ${outerStop}):\n    for j in range(1, 3):\n        if (i * j) % 2 == 0:\n            print(i * j)`;
+
+            const prompt = 'What is the <code class="text-burntOrange font-mono font-bold">exact printed output</code>? (If multiple values are printed, enter them separated by spaces, e.g. "2 4", or "None" if nothing prints)';
+
+            return {
+                factoryId: 'genNestedForPrint',
+                type: 'Nested For (Printed Output)',
+                category: 'nested_for',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: prints.length > 0 ? prints.join(' ') : 'None',
+                targetType: 'print_out',
+                trace
+            };
+        }
+
+        // 18. Nested While Loops (Outer while, inner dependent while)
+        function genNestedWhile() {
+            const outerMax = randInt(3, 4);
+            let i = 0;
+            let total = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            while (i < outerMax) {
+                let j = i;
+                while (j > 0) {
+                    stepCount++;
+                    let oldTotal = total;
+                    let oldJ = j;
+                    total += j;
+                    j -= 1;
+                    trace.push({
+                        step: stepCount,
+                        control: `i=${i}, j=${oldJ} (>0)`,
+                        branch: `total += j; j -= 1`,
+                        action: `total: ${oldTotal} ➔ ${total}, j: ${oldJ} ➔ ${j}`,
+                        printed: '-'
+                    });
+                }
+                i += 1;
+            }
+
+            const code = `i = 0\ntotal = 0\nwhile i < ${outerMax}:\n    j = i\n    while j > 0:\n        total += j\n        j -= 1\n    i += 1`;
+
+            const target = randChoice(['final_val', 'iterations']);
+            const prompt = target === 'final_val'
+                ? 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">total</code>?'
+                : 'How many total times does the inner loop body execute?';
+
+            return {
+                factoryId: 'genNestedWhile',
+                type: 'Nested While Loops',
+                category: 'nested_while',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: target === 'final_val' ? String(total) : String(stepCount),
+                targetType: target,
+                trace
+            };
+        }
+
+        // 19. Nested While - Decrement with Accumulator
+        function genNestedWhileDecrement() {
+            const startA = randChoice([6, 8]);
+            let a = startA;
+            let count = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            while (a > 2) {
+                let b = 1;
+                while (b < 3) {
+                    stepCount++;
+                    let oldCount = count;
+                    count += a * b;
+                    b += 1;
+                    trace.push({
+                        step: stepCount,
+                        control: `a=${a}, b=${b-1}`,
+                        branch: `count += a * b`,
+                        action: `count: ${oldCount} ➔ ${count}`,
+                        printed: '-'
+                    });
+                }
+                a -= 2;
+            }
+
+            const code = `a = ${startA}\ncount = 0\nwhile a > 2:\n    b = 1\n    while b < 3:\n        count += a * b\n        b += 1\n    a -= 2`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">count</code>?';
+
+            return {
+                factoryId: 'genNestedWhileDecrement',
+                type: 'Nested While (Decrement)',
+                category: 'nested_while',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(count),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 20. Combination Nested Loop - For inside While
+        function genComboForInsideWhile() {
+            const startX = randChoice([8, 10]);
+            let x = startX;
+            let val = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            while (x > 3) {
+                for (const k of pyRange(1, 3)) {
+                    stepCount++;
+                    let oldVal = val;
+                    let branch = '';
+                    if (pyMod(x + k, 2) === 0) {
+                        branch = `if (x + k) % 2 == 0`;
+                        val += x;
+                    } else {
+                        branch = `else`;
+                        val += k;
+                    }
+                    trace.push({
+                        step: stepCount,
+                        control: `x=${x}, k=${k}`,
+                        branch: branch,
+                        action: `val: ${oldVal} ➔ ${val}`,
+                        printed: '-'
+                    });
+                }
+                x -= 3;
+            }
+
+            const code = `x = ${startX}\nval = 0\nwhile x > 3:\n    for k in range(1, 3):\n        if (x + k) % 2 == 0:\n            val += x\n        else:\n            val += k\n    x -= 3`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">val</code>?';
+
+            return {
+                factoryId: 'genComboForInsideWhile',
+                type: 'Combination (For inside While)',
+                category: 'nested_combo',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(val),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 21. Combination Nested Loop - While inside For
+        function genComboWhileInsideFor() {
+            const outerStop = randInt(3, 4); // range(1, 4) -> i=1, 2, 3
+            let total = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(1, outerStop)) {
+                let k = i;
+                while (k > 0) {
+                    stepCount++;
+                    let oldTotal = total;
+                    let oldK = k;
+                    total += k;
+                    k -= 1;
+                    trace.push({
+                        step: stepCount,
+                        control: `i=${i}, k=${oldK}`,
+                        branch: `total += k; k -= 1`,
+                        action: `total: ${oldTotal} ➔ ${total}, k: ${oldK} ➔ ${k}`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `total = 0\nfor i in range(1, ${outerStop}):\n    k = i\n    while k > 0:\n        total += k\n        k -= 1`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">total</code>?';
+
+            return {
+                factoryId: 'genComboWhileInsideFor',
+                type: 'Combination (While inside For)',
+                category: 'nested_combo',
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(total),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // Pool of all 21 generators
         const GENERATOR_POOL = [
             genForSingleArgRange,
             genForTwoArgRange,
@@ -839,7 +1378,18 @@
             genForPrintOutput,
             genNegativeRangeWithFloorDiv,
             genNegativeBoundsRange,
-            genDualVariableWhile
+            genDualVariableWhile,
+            genForStringDirect,
+            genForStringIndex,
+            genForListDirect,
+            genForListIndex,
+            genNestedForIndependent,
+            genNestedForDependent,
+            genNestedForPrint,
+            genNestedWhile,
+            genNestedWhileDecrement,
+            genComboForInsideWhile,
+            genComboWhileInsideFor
         ];
 
         // Factory lookup map for preserving exact question generator on Try Again
@@ -853,58 +1403,79 @@
             'genForPrintOutput': genForPrintOutput,
             'genNegativeRangeWithFloorDiv': genNegativeRangeWithFloorDiv,
             'genNegativeBoundsRange': genNegativeBoundsRange,
-            'genDualVariableWhile': genDualVariableWhile
+            'genDualVariableWhile': genDualVariableWhile,
+            'genForStringDirect': genForStringDirect,
+            'genForStringIndex': genForStringIndex,
+            'genForListDirect': genForListDirect,
+            'genForListIndex': genForListIndex,
+            'genNestedForIndependent': genNestedForIndependent,
+            'genNestedForDependent': genNestedForDependent,
+            'genNestedForPrint': genNestedForPrint,
+            'genNestedWhile': genNestedWhile,
+            'genNestedWhileDecrement': genNestedWhileDecrement,
+            'genComboForInsideWhile': genComboForInsideWhile,
+            'genComboWhileInsideFor': genComboWhileInsideFor
         };
 
         /* ----------------------------------------------------
          * APPLICATION CORE CONTROLLER & ANSWER VERIFICATION
          * ---------------------------------------------------- */
 
-        // Normalize student output string
+        // Normalize student output string (handles quotes on string inputs cleanly)
         function normalizeAnswer(str) {
             if (str === null || str === undefined) return '';
-            return String(str)
-                .trim()
-                .toLowerCase()
+            let cleaned = String(str).trim().toLowerCase();
+            
+            // Strip outer matching quotes if student typed 'answer' or "answer"
+            if ((cleaned.startsWith("'") && cleaned.endsWith("'")) || (cleaned.startsWith('"') && cleaned.endsWith('"'))) {
+                if (cleaned.length >= 2) {
+                    cleaned = cleaned.slice(1, -1).trim();
+                }
+            }
+            
+            return cleaned
                 .replace(/,/g, ' ')
                 .replace(/\s+/g, ' ');
         }
 
-        // Generate Batch of Questions
+        // Generate Batch of Questions based on category filter
         function generateBatch(filterCategory = 'all') {
             STATE.questions = [];
             STATE.filter = filterCategory;
 
+            // Filter available pool
+            let candidateGenerators = [];
+            if (filterCategory === 'all') {
+                candidateGenerators = GENERATOR_POOL;
+            } else if (filterCategory === 'negative_step') {
+                candidateGenerators = GENERATOR_POOL.filter(g => {
+                    const sample = g();
+                    return sample.isNegativeStep;
+                });
+            } else {
+                candidateGenerators = GENERATOR_POOL.filter(g => {
+                    const sample = g();
+                    return sample.category === filterCategory;
+                });
+            }
+
+            if (candidateGenerators.length === 0) {
+                candidateGenerators = GENERATOR_POOL;
+            }
+
             let attempts = 0;
-            while (STATE.questions.length < STATE.totalGoal && attempts < 300) {
+            while (STATE.questions.length < STATE.totalGoal && attempts < 400) {
                 attempts++;
-                const factory = randChoice(GENERATOR_POOL);
+                const factory = randChoice(candidateGenerators);
                 const q = factory();
 
-                let shouldInclude = false;
-
-                if (filterCategory === 'all') {
-                    const wantNegative = Math.random() < 0.15;
-                    if (wantNegative && q.isNegativeStep) {
-                        shouldInclude = true;
-                    } else if (!wantNegative && !q.isNegativeStep) {
-                        shouldInclude = true;
-                    }
-                } else if (filterCategory === 'negative_step' && q.isNegativeStep) {
-                    shouldInclude = true;
-                } else if (filterCategory === q.category) {
-                    shouldInclude = true;
-                }
-
-                if (shouldInclude) {
-                    STATE.questions.push({
-                        id: STATE.questions.length + 1,
-                        ...q,
-                        userAnswer: '',
-                        status: 'unanswered', // 'unanswered', 'correct', 'incorrect'
-                        showTrace: false
-                    });
-                }
+                STATE.questions.push({
+                    id: STATE.questions.length + 1,
+                    ...q,
+                    userAnswer: '',
+                    status: 'unanswered', // 'unanswered', 'correct', 'incorrect'
+                    showTrace: false
+                });
             }
 
             renderQuestions();
@@ -959,7 +1530,7 @@
                                 type="text" 
                                 id="input-q-${index}" 
                                 value="${q.userAnswer}" 
-                                placeholder="${q.targetType === 'print_out' ? 'e.g. 6 12 or None' : 'Enter numeric value...'}"
+                                placeholder="${q.targetType === 'print_out' ? 'e.g. 6 12 or None' : 'Enter value...'}"
                                 ${q.status !== 'unanswered' ? 'disabled' : ''}
                                 class="w-full bg-slate-950 border ${q.status === 'correct' ? 'border-emerald-500/50 text-emerald-300' : (q.status === 'incorrect' ? 'border-rose-500/50 text-rose-300 bg-slate-900/80 cursor-not-allowed' : 'border-slate-700 text-white')} rounded-xl px-3.5 py-2 text-xs sm:text-sm font-mono focus:outline-none focus:border-burntOrange transition-colors"
                                 onkeydown="if(event.key === 'Enter' && STATE.questions[${index}].status === 'unanswered') checkQuestion(${index})"
@@ -1005,7 +1576,7 @@
                         <div class="mt-3 p-2.5 bg-rose-950/40 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-sm">🔒</span>
-                                <span><strong>Incorrect!</strong> Question locked. Click <strong>"Try Again (New Values)"</strong> to practice this same loop type with new numbers!</span>
+                                <span><strong>Incorrect!</strong> Question locked. Click <strong>"Try Again (New Values)"</strong> to practice this same loop type with new numbers/data!</span>
                             </div>
                         </div>
                     ` : ''}
