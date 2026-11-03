@@ -31,7 +31,7 @@
     </script>
 
     <style>
-        /* Modern Scrollbar */
+        /* Modern Dark Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -45,6 +45,12 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #BF5700;
+        }
+
+        /* Disable Font Ligatures so <=, >=, and != render as standard separate ASCII characters */
+        code, pre, .font-mono, input, table {
+            font-variant-ligatures: none !important;
+            font-feature-settings: "calt" 0 !important;
         }
 
         /* Syntax Color Palette */
@@ -194,6 +200,29 @@
 
     </main>
 
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span class="text-amber-500 text-lg">⚠️</span> Warning: Unsaved Progress
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                You have active attempts on this problem set. Starting a new set or changing the filter will clear your current questions and attempt statistics.
+            </p>
+            <p class="text-xs font-semibold text-slate-400">
+                Are you sure you want to proceed?
+            </p>
+            <div class="flex justify-end items-center gap-2 pt-2">
+                <button id="modal-cancel-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl font-semibold transition-colors">
+                    Cancel
+                </button>
+                <button id="modal-confirm-btn" class="bg-burntOrange hover:bg-burntOrangeDark text-white text-xs px-4 py-2 rounded-xl font-semibold transition-colors">
+                    Yes, Reset &amp; Start New Set
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="no-print bg-slate-950 border-t border-slate-800/80 py-5 text-center text-xs text-slate-500 mt-auto">
         <p>OnRamps Computer Science — Interactive Loop Tracing Activity</p>
@@ -268,6 +297,17 @@
         // Utility: Random Choice from Array
         function randChoice(arr) {
             return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // Utility: Escape HTML special characters for safe innerHTML rendering
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         /* ----------------------------------------------------
@@ -847,7 +887,7 @@
         }
 
         /* ----------------------------------------------------
-         * FOR LOOPS OVER STRINGS AND LISTS (NEW)
+         * FOR LOOPS OVER STRINGS AND LISTS
          * ---------------------------------------------------- */
 
         // 11. For Loop - Direct Character Iteration over String
@@ -1485,6 +1525,7 @@
         // Render All Question Cards into HTML
         function renderQuestions() {
             const container = document.getElementById('questions-container');
+            if (!container) return;
             container.innerHTML = '';
 
             STATE.questions.forEach((q, index) => {
@@ -1529,7 +1570,7 @@
                             <input 
                                 type="text" 
                                 id="input-q-${index}" 
-                                value="${q.userAnswer}" 
+                                value="${escapeHTML(q.userAnswer)}" 
                                 placeholder="${q.targetType === 'print_out' ? 'e.g. 6 12 or None' : 'Enter value...'}"
                                 ${q.status !== 'unanswered' ? 'disabled' : ''}
                                 class="w-full bg-slate-950 border ${q.status === 'correct' ? 'border-emerald-500/50 text-emerald-300' : (q.status === 'incorrect' ? 'border-rose-500/50 text-rose-300 bg-slate-900/80 cursor-not-allowed' : 'border-slate-700 text-white')} rounded-xl px-3.5 py-2 text-xs sm:text-sm font-mono focus:outline-none focus:border-burntOrange transition-colors"
@@ -1602,10 +1643,10 @@
                                         ${q.trace.map(t => `
                                             <tr class="hover:bg-slate-800/40 transition-colors">
                                                 <td class="p-2 text-slate-400 font-bold">${t.step}</td>
-                                                <td class="p-2 text-cyan-300">${t.control}</td>
-                                                <td class="p-2 text-amber-300">${t.branch}</td>
-                                                <td class="p-2 text-slate-200">${t.action}</td>
-                                                <td class="p-2 ${t.printed !== '-' ? 'text-emerald-400 font-bold' : 'text-slate-600'}">${t.printed}</td>
+                                                <td class="p-2 text-cyan-300">${escapeHTML(t.control)}</td>
+                                                <td class="p-2 text-amber-300">${escapeHTML(t.branch)}</td>
+                                                <td class="p-2 text-slate-200">${escapeHTML(t.action)}</td>
+                                                <td class="p-2 ${t.printed !== '-' ? 'text-emerald-400 font-bold' : 'text-slate-600'}">${escapeHTML(t.printed)}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -1729,16 +1770,16 @@
                 
                 tr.innerHTML = `
                     <td style="padding: 5px; border: 1px solid #cbd5e1; font-weight: bold; text-align: center;">#${q.id}</td>
-                    <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; white-space: pre-wrap; font-size: 8.5px;">${q.code}</td>
+                    <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; white-space: pre-wrap; font-size: 8.5px;">${escapeHTML(q.code)}</td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1;">
                         <div style="font-weight: bold;">Question #${q.id}</div>
                         <div style="color: #475569; font-size: 8.5px; margin-top: 2px;">${q.prompt.replace(/<[^>]*>?/gm, '')}</div>
                     </td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; font-weight: bold;">
-                        ${q.userAnswer || '<span style="color: #94a3b8;">Not Answered</span>'}
+                        ${q.userAnswer ? escapeHTML(q.userAnswer) : '<span style="color: #94a3b8;">Not Answered</span>'}
                     </td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; color: #16a34a; font-weight: bold;">
-                        ${q.answer}
+                        ${escapeHTML(q.answer)}
                     </td>
                     <td style="padding: 5px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">
                         ${q.status === 'correct' ? '<span style="color: #16a34a;">PASS</span>' : (q.status === 'incorrect' ? '<span style="color: #dc2626;">RETRY</span>' : '<span style="color: #94a3b8;">--</span>')}
@@ -1777,14 +1818,54 @@
                 setTimeout(() => badge.classList.add('hidden'), 1500);
             });
 
+            // Pending category for modal confirmation
+            let pendingCategoryToLoad = null;
+
+            function requestBatchChange(newCategory) {
+                if (STATE.totalAttempts > 0) {
+                    pendingCategoryToLoad = newCategory;
+                    document.getElementById('confirm-modal').classList.remove('hidden');
+                } else {
+                    STATE.totalAttempts = 0;
+                    STATE.totalCorrectAttempts = 0;
+                    generateBatch(newCategory);
+                }
+            }
+
+            // Modal Buttons
+            document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                document.getElementById('filter-select').value = STATE.filter;
+                pendingCategoryToLoad = null;
+            });
+
+            document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                if (pendingCategoryToLoad !== null) {
+                    STATE.totalAttempts = 0;
+                    STATE.totalCorrectAttempts = 0;
+                    generateBatch(pendingCategoryToLoad);
+                    pendingCategoryToLoad = null;
+                }
+            });
+
+            // Browser Reload / Navigation Warning
+            window.addEventListener('beforeunload', (e) => {
+                if (STATE.totalAttempts > 0) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
+            });
+
             // Filter Dropdown Change
             document.getElementById('filter-select').addEventListener('change', (e) => {
-                generateBatch(e.target.value);
+                requestBatchChange(e.target.value);
             });
 
             // Buttons
             document.getElementById('btn-new-batch').addEventListener('click', () => {
-                generateBatch(document.getElementById('filter-select').value);
+                requestBatchChange(document.getElementById('filter-select').value);
             });
 
             document.getElementById('btn-print-pdf').addEventListener('click', () => {
