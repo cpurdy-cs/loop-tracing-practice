@@ -174,6 +174,7 @@
                     <select id="filter-select" class="bg-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-burntOrange font-mono cursor-pointer">
                         <option value="all">All Loop Types (Mixed 10)</option>
                         <option value="for_single">Single For Loops (range)</option>
+                        <option value="for_string_each">For-Each String Loops</option>
                         <option value="for_seq">For Loops (Strings &amp; Lists)</option>
                         <option value="while_single">Single While Loops</option>
                         <option value="nested_for">Nested For Loops</option>
@@ -366,7 +367,7 @@
                     // Highlight Python syntax elements
                     escaped = escaped
                         .replace(/(#.*)/g, '<span class="py-comment">$1</span>')
-                        .replace(/\b(for|in|range|len|while|if|elif|else|print|abs)\b/g, '<span class="py-keyword">$1</span>')
+                        .replace(/\b(for|in|not|range|len|while|if|elif|else|print|abs)\b/g, '<span class="py-keyword">$1</span>')
                         .replace(/\b(True|False|None)\b/g, '<span class="py-func">$1</span>')
                         .replace(/\b(\d+)\b/g, '<span class="py-number">$1</span>');
 
@@ -887,10 +888,10 @@
         }
 
         /* ----------------------------------------------------
-         * FOR LOOPS OVER STRINGS AND LISTS
+         * FOR-EACH STRING LOOPS (NO LISTS - MIDTERM PREP)
          * ---------------------------------------------------- */
 
-        // 11. For Loop - Direct Character Iteration over String
+        // 11. For-Each String Loop - Direct Character Vowel/Consonant Count
         function genForStringDirect() {
             const words = ["onramps", "python", "coding", "lambda", "austin", "vector"];
             const word = randChoice(words);
@@ -927,8 +928,9 @@
 
             return {
                 factoryId: 'genForStringDirect',
-                type: 'For Loop (String Direct)',
-                category: 'for_seq',
+                type: 'For-Each String (Vowel Count)',
+                category: 'for_string_each',
+                categories: ['for_string_each', 'for_seq'],
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -938,7 +940,231 @@
             };
         }
 
-        // 12. For Loop - Index-Based Iteration over String (range(len(text)))
+        // 12. For-Each String Loop - Specific Letter Scoring (if / elif)
+        function genForEachStringCountTarget() {
+            const wordConfigs = [
+                { word: "banana", t1: "a", t2: "n" },
+                { word: "onramps", t1: "a", t2: "s" },
+                { word: "alabama", t1: "a", t2: "b" },
+                { word: "papaya", t1: "a", t2: "p" },
+                { word: "austin", t1: "u", t2: "n" }
+            ];
+            const cfg = randChoice(wordConfigs);
+            const word = cfg.word;
+            const t1 = cfg.t1;
+            const t2 = cfg.t2;
+
+            let score = 0;
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const letter = word[idx];
+                stepCount++;
+                let oldScore = score;
+                let branch = '';
+                if (letter === t1) {
+                    branch = `if letter == "${t1}"`;
+                    score += 3;
+                } else if (letter === t2) {
+                    branch = `elif letter == "${t2}"`;
+                    score += 1;
+                } else {
+                    branch = `(no match)`;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `letter = '${letter}'`,
+                    branch: branch,
+                    action: oldScore !== score ? `score: ${oldScore} ➔ ${score}` : 'No change',
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\nscore = 0\nfor letter in word:\n    if letter == "${t1}":\n        score += 3\n    elif letter == "${t2}":\n        score += 1`;
+
+            const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">score</code>?';
+
+            return {
+                factoryId: 'genForEachStringCountTarget',
+                type: 'For-Each String (Letter Score)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: String(score),
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 13. For-Each String Loop - Building a Filtered String (Vowels or Consonants)
+        function genForEachStringBuildFilter() {
+            const words = ["onramps", "python", "coding", "vector", "austin", "planet"];
+            const word = randChoice(words);
+            const keepVowels = randChoice([true, false]);
+            const vowels = "aeiou";
+
+            let result = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const char = word[idx];
+                stepCount++;
+                let oldResult = result;
+                let branch = '';
+                const isVowel = vowels.includes(char);
+
+                if (keepVowels) {
+                    if (isVowel) {
+                        branch = `if char in "aeiou"`;
+                        result += char;
+                    } else {
+                        branch = `(skipped)`;
+                    }
+                } else {
+                    if (!isVowel) {
+                        branch = `if char not in "aeiou"`;
+                        result += char;
+                    } else {
+                        branch = `(skipped)`;
+                    }
+                }
+
+                trace.push({
+                    step: stepCount,
+                    control: `char = '${char}'`,
+                    branch: branch,
+                    action: oldResult !== result ? `result: "${oldResult}" ➔ "${result}"` : 'No change',
+                    printed: '-'
+                });
+            }
+
+            const conditionLine = keepVowels ? `if char in "aeiou":` : `if char not in "aeiou":`;
+            const code = `word = "${word}"\nresult = ""\nfor char in word:\n    ${conditionLine}\n        result += char`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">result</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringBuildFilter',
+                type: 'For-Each String (Filter Build)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: result,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 14. For-Each String Loop - Building a String with Character Replacement
+        function genForEachStringBuildReplace() {
+            const words = ["python", "vector", "coding", "austin", "silver", "rocket"];
+            const word = randChoice(words);
+            const symbol = randChoice(["*", "-"]);
+            const vowels = "aeiou";
+
+            let out = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const ch = word[idx];
+                stepCount++;
+                let oldOut = out;
+                let branch = '';
+                if (vowels.includes(ch)) {
+                    branch = `if ch in "aeiou"`;
+                    out += symbol;
+                } else {
+                    branch = `else`;
+                    out += ch;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `ch = '${ch}'`,
+                    branch: branch,
+                    action: `out: "${oldOut}" ➔ "${out}"`,
+                    printed: '-'
+                });
+            }
+
+            const code = `text = "${word}"\nout = ""\nfor ch in text:\n    if ch in "aeiou":\n        out += "${symbol}"\n    else:\n        out += ch`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringBuildReplace',
+                type: 'For-Each String (Replace Build)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: out,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 15. For-Each String Loop - Building a String via Concatenation Order (Prepend vs Append)
+        function genForEachStringBuildOrder() {
+            const words = ["python", "vector", "coding", "austin", "planet"];
+            const word = randChoice(words);
+            const vowels = "aeiou";
+
+            let res = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const char = word[idx];
+                stepCount++;
+                let oldRes = res;
+                let branch = '';
+                if (vowels.includes(char)) {
+                    branch = `if char in "aeiou"`;
+                    res = char + res;
+                } else {
+                    branch = `else`;
+                    res = res + char;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `char = '${char}'`,
+                    branch: branch,
+                    action: `res: "${oldRes}" ➔ "${res}"`,
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\nres = ""\nfor char in word:\n    if char in "aeiou":\n        res = char + res\n    else:\n        res = res + char`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">res</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringBuildOrder',
+                type: 'For-Each String (Concatenation Order)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: res,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        /* ----------------------------------------------------
+         * FOR LOOPS OVER STRINGS AND LISTS (INDEX & LISTS)
+         * ---------------------------------------------------- */
+
+        // 16. For Loop - Index-Based Iteration over String (range(len(text)))
         function genForStringIndex() {
             const words = ["computer", "variable", "function", "sequence", "onramps"];
             const word = randChoice(words);
@@ -982,7 +1208,7 @@
             };
         }
 
-        // 13. For Loop - Direct Element Iteration over List of Numbers
+        // 17. For Loop - Direct Element Iteration over List of Numbers
         function genForListDirect() {
             const len = randInt(4, 6);
             const nums = [];
@@ -1032,7 +1258,7 @@
             };
         }
 
-        // 14. For Loop - Index-Based Iteration over List (range(len(nums)))
+        // 18. For Loop - Index-Based Iteration over List (range(len(nums)))
         function genForListIndex() {
             const len = randInt(4, 5);
             const nums = [];
@@ -1085,7 +1311,7 @@
          * NESTED LOOP GENERATOR ENGINE
          * ---------------------------------------------------- */
 
-        // 15. Nested For - Independent Ranges
+        // 19. Nested For - Independent Ranges
         function genNestedForIndependent() {
             const outerStop = randInt(2, 3);
             const innerStop = randInt(3, 4);
@@ -1137,7 +1363,7 @@
             };
         }
 
-        // 16. Nested For - Dependent Inner Range (j in range(i))
+        // 20. Nested For - Dependent Inner Range (j in range(i))
         function genNestedForDependent() {
             const outerStop = randInt(3, 4); // i = 1, 2, (3)
             let total = 0;
@@ -1179,7 +1405,7 @@
             };
         }
 
-        // 17. Nested For - Printed Output
+        // 21. Nested For - Printed Output
         function genNestedForPrint() {
             const outerStart = randInt(1, 2);
             const outerStop = outerStart + randInt(2, 3);
@@ -1227,7 +1453,7 @@
             };
         }
 
-        // 18. Nested While Loops (Outer while, inner dependent while)
+        // 22. Nested While Loops (Outer while, inner dependent while)
         function genNestedWhile() {
             const outerMax = randInt(3, 4);
             let i = 0;
@@ -1274,7 +1500,7 @@
             };
         }
 
-        // 19. Nested While - Decrement with Accumulator
+        // 23. Nested While - Decrement with Accumulator
         function genNestedWhileDecrement() {
             const startA = randChoice([6, 8]);
             let a = startA;
@@ -1317,7 +1543,7 @@
             };
         }
 
-        // 20. Combination Nested Loop - For inside While
+        // 24. Combination Nested Loop - For inside While
         function genComboForInsideWhile() {
             const startX = randChoice([8, 10]);
             let x = startX;
@@ -1365,7 +1591,7 @@
             };
         }
 
-        // 21. Combination Nested Loop - While inside For
+        // 25. Combination Nested Loop - While inside For
         function genComboWhileInsideFor() {
             const outerStop = randInt(3, 4); // range(1, 4) -> i=1, 2, 3
             let total = 0;
@@ -1407,7 +1633,7 @@
             };
         }
 
-        // Pool of all 21 generators
+        // Pool of all 25 generators
         const GENERATOR_POOL = [
             genForSingleArgRange,
             genForTwoArgRange,
@@ -1420,6 +1646,10 @@
             genNegativeBoundsRange,
             genDualVariableWhile,
             genForStringDirect,
+            genForEachStringCountTarget,
+            genForEachStringBuildFilter,
+            genForEachStringBuildReplace,
+            genForEachStringBuildOrder,
             genForStringIndex,
             genForListDirect,
             genForListIndex,
@@ -1445,6 +1675,10 @@
             'genNegativeBoundsRange': genNegativeBoundsRange,
             'genDualVariableWhile': genDualVariableWhile,
             'genForStringDirect': genForStringDirect,
+            'genForEachStringCountTarget': genForEachStringCountTarget,
+            'genForEachStringBuildFilter': genForEachStringBuildFilter,
+            'genForEachStringBuildReplace': genForEachStringBuildReplace,
+            'genForEachStringBuildOrder': genForEachStringBuildOrder,
             'genForStringIndex': genForStringIndex,
             'genForListDirect': genForListDirect,
             'genForListIndex': genForListIndex,
@@ -1495,7 +1729,7 @@
             } else {
                 candidateGenerators = GENERATOR_POOL.filter(g => {
                     const sample = g();
-                    return sample.category === filterCategory;
+                    return sample.category === filterCategory || (sample.categories && sample.categories.includes(filterCategory));
                 });
             }
 
