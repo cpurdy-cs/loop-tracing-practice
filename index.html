@@ -368,7 +368,7 @@
                     escaped = escaped
                         .replace(/(#.*)/g, '<span class="py-comment">$1</span>')
                         .replace(/\b(for|in|not|range|len|while|if|elif|else|print|abs)\b/g, '<span class="py-keyword">$1</span>')
-                        .replace(/\b(True|False|None)\b/g, '<span class="py-func">$1</span>')
+                        .replace(/\b(True|False|None|isupper|islower|isdigit|isalpha)\b/g, '<span class="py-func">$1</span>')
                         .replace(/\b(\d+)\b/g, '<span class="py-number">$1</span>');
 
                     // Restore highlighted strings
@@ -888,14 +888,13 @@
         }
 
         /* ----------------------------------------------------
-         * FOR-EACH STRING LOOPS (NO LISTS - MIDTERM PREP)
+         * FOR-EACH STRING LOOPS (CREATIVE CHECKS - NO LISTS)
          * ---------------------------------------------------- */
 
-        // 11. For-Each String Loop - Direct Character Vowel/Consonant Count
+        // 11. For-Each String Loop - Uppercase vs. Lowercase Character Scoring
         function genForStringDirect() {
-            const words = ["onramps", "python", "coding", "lambda", "austin", "vector"];
+            const words = ["PyThOn", "OnRaMpS", "CoDiNg", "AuStIn", "VeCtOr", "LaMbDa"];
             const word = randChoice(words);
-            const vowels = "aeiou";
             
             let count = 0;
             let stepCount = 0;
@@ -906,9 +905,9 @@
                 stepCount++;
                 let oldCount = count;
                 let branch = '';
-                if (vowels.includes(char)) {
-                    branch = `if char in "aeiou"`;
-                    count += 2;
+                if (char >= 'A' && char <= 'Z') {
+                    branch = `if char.isupper()`;
+                    count += 3;
                 } else {
                     branch = `else`;
                     count += 1;
@@ -922,13 +921,13 @@
                 });
             }
 
-            const code = `word = "${word}"\ncount = 0\nfor char in word:\n    if char in "aeiou":\n        count += 2\n    else:\n        count += 1`;
+            const code = `word = "${word}"\ncount = 0\nfor char in word:\n    if char.isupper():\n        count += 3\n    else:\n        count += 1`;
 
             const prompt = 'What is the final value of variable <code class="text-burntOrange font-mono font-bold">count</code>?';
 
             return {
                 factoryId: 'genForStringDirect',
-                type: 'For-Each String (Vowel Count)',
+                type: 'For-Each String (Case Scoring)',
                 category: 'for_string_each',
                 categories: ['for_string_each', 'for_seq'],
                 isNegativeStep: false,
@@ -943,11 +942,11 @@
         // 12. For-Each String Loop - Specific Letter Scoring (if / elif)
         function genForEachStringCountTarget() {
             const wordConfigs = [
-                { word: "banana", t1: "a", t2: "n" },
-                { word: "onramps", t1: "a", t2: "s" },
-                { word: "alabama", t1: "a", t2: "b" },
-                { word: "papaya", t1: "a", t2: "p" },
-                { word: "austin", t1: "u", t2: "n" }
+                { word: "mississippi", t1: "s", t2: "p" },
+                { word: "tennessee", t1: "e", t2: "n" },
+                { word: "bookkeeper", t1: "k", t2: "e" },
+                { word: "onramps", t1: "m", t2: "s" },
+                { word: "committee", t1: "t", t2: "m" }
             ];
             const cfg = randChoice(wordConfigs);
             const word = cfg.word;
@@ -999,12 +998,10 @@
             };
         }
 
-        // 13. For-Each String Loop - Building a Filtered String (Vowels or Consonants)
+        // 13. For-Each String Loop - Unique Character Filter (Duplicate Removal)
         function genForEachStringBuildFilter() {
-            const words = ["onramps", "python", "coding", "vector", "austin", "planet"];
+            const words = ["banana", "mississippi", "balloon", "committee", "bookkeeper", "alabama"];
             const word = randChoice(words);
-            const keepVowels = randChoice([true, false]);
-            const vowels = "aeiou";
 
             let result = "";
             let stepCount = 0;
@@ -1015,22 +1012,12 @@
                 stepCount++;
                 let oldResult = result;
                 let branch = '';
-                const isVowel = vowels.includes(char);
 
-                if (keepVowels) {
-                    if (isVowel) {
-                        branch = `if char in "aeiou"`;
-                        result += char;
-                    } else {
-                        branch = `(skipped)`;
-                    }
+                if (!result.includes(char)) {
+                    branch = `if char not in result`;
+                    result += char;
                 } else {
-                    if (!isVowel) {
-                        branch = `if char not in "aeiou"`;
-                        result += char;
-                    } else {
-                        branch = `(skipped)`;
-                    }
+                    branch = `(already in result)`;
                 }
 
                 trace.push({
@@ -1042,14 +1029,13 @@
                 });
             }
 
-            const conditionLine = keepVowels ? `if char in "aeiou":` : `if char not in "aeiou":`;
-            const code = `word = "${word}"\nresult = ""\nfor char in word:\n    ${conditionLine}\n        result += char`;
+            const code = `word = "${word}"\nresult = ""\nfor char in word:\n    if char not in result:\n        result += char`;
 
             const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">result</code>? (Outer quotes optional)';
 
             return {
                 factoryId: 'genForEachStringBuildFilter',
-                type: 'For-Each String (Filter Build)',
+                type: 'For-Each String (Unique Filter)',
                 category: 'for_string_each',
                 categories: ['for_string_each'],
                 isNegativeStep: false,
@@ -1061,12 +1047,11 @@
             };
         }
 
-        // 14. For-Each String Loop - Building a String with Character Replacement
+        // 14. For-Each String Loop - Digit Masking with .isdigit()
         function genForEachStringBuildReplace() {
-            const words = ["python", "vector", "coding", "austin", "silver", "rocket"];
-            const word = randChoice(words);
-            const symbol = randChoice(["*", "-"]);
-            const vowels = "aeiou";
+            const codes = ["cs101", "ut2026", "py3x9", "lab42", "room8", "code7"];
+            const word = randChoice(codes);
+            const symbol = randChoice(["#", "*"]);
 
             let out = "";
             let stepCount = 0;
@@ -1077,8 +1062,8 @@
                 stepCount++;
                 let oldOut = out;
                 let branch = '';
-                if (vowels.includes(ch)) {
-                    branch = `if ch in "aeiou"`;
+                if (ch >= '0' && ch <= '9') {
+                    branch = `if ch.isdigit()`;
                     out += symbol;
                 } else {
                     branch = `else`;
@@ -1093,13 +1078,13 @@
                 });
             }
 
-            const code = `text = "${word}"\nout = ""\nfor ch in text:\n    if ch in "aeiou":\n        out += "${symbol}"\n    else:\n        out += ch`;
+            const code = `text = "${word}"\nout = ""\nfor ch in text:\n    if ch.isdigit():\n        out += "${symbol}"\n    else:\n        out += ch`;
 
             const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code>? (Outer quotes optional)';
 
             return {
                 factoryId: 'genForEachStringBuildReplace',
-                type: 'For-Each String (Replace Build)',
+                type: 'For-Each String (Digit Mask)',
                 category: 'for_string_each',
                 categories: ['for_string_each'],
                 isNegativeStep: false,
@@ -1111,11 +1096,10 @@
             };
         }
 
-        // 15. For-Each String Loop - Building a String via Concatenation Order (Prepend vs Append)
+        // 15. For-Each String Loop - Concatenation Order by Letter Case (Prepend Upper, Append Lower)
         function genForEachStringBuildOrder() {
-            const words = ["python", "vector", "coding", "austin", "planet"];
+            const words = ["pYtHoN", "cOdInG", "aUsTiN", "sCrIpT", "vEcToR"];
             const word = randChoice(words);
-            const vowels = "aeiou";
 
             let res = "";
             let stepCount = 0;
@@ -1126,8 +1110,8 @@
                 stepCount++;
                 let oldRes = res;
                 let branch = '';
-                if (vowels.includes(char)) {
-                    branch = `if char in "aeiou"`;
+                if (char >= 'A' && char <= 'Z') {
+                    branch = `if char.isupper()`;
                     res = char + res;
                 } else {
                     branch = `else`;
@@ -1142,13 +1126,13 @@
                 });
             }
 
-            const code = `word = "${word}"\nres = ""\nfor char in word:\n    if char in "aeiou":\n        res = char + res\n    else:\n        res = res + char`;
+            const code = `word = "${word}"\nres = ""\nfor char in word:\n    if char.isupper():\n        res = char + res\n    else:\n        res = res + char`;
 
             const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">res</code>? (Outer quotes optional)';
 
             return {
                 factoryId: 'genForEachStringBuildOrder',
-                type: 'For-Each String (Concatenation Order)',
+                type: 'For-Each String (Case Reorder)',
                 category: 'for_string_each',
                 categories: ['for_string_each'],
                 isNegativeStep: false,
@@ -1160,11 +1144,471 @@
             };
         }
 
+        // 16. Single For Loop - String Multiplication with Loop Variable
+        function genForStringMultiplyLoopVar() {
+            const sym = randChoice(["x", "*", "#", "+"]);
+            const sep = randChoice(["-", "."]);
+            const stop = randChoice([4, 5]);
+
+            let text = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(1, stop)) {
+                stepCount++;
+                let oldText = text;
+                let branch = '';
+                if (pyMod(i, 2) === 0) {
+                    branch = `if i % 2 == 0`;
+                    text += sym.repeat(i);
+                } else {
+                    branch = `else`;
+                    text += sep;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `i = ${i}`,
+                    branch: branch,
+                    action: `text: "${oldText}" ➔ "${text}"`,
+                    printed: '-'
+                });
+            }
+
+            const code = `text = ""\nfor i in range(1, ${stop}):\n    if i % 2 == 0:\n        text += "${sym}" * i\n    else:\n        text += "${sep}"`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">text</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForStringMultiplyLoopVar',
+                type: 'For Loop (String Multiplication)',
+                category: 'for_single',
+                categories: ['for_single'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: text,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 17. For-Each String Loop - Alphabetical Threshold Check (char < "h") with Constant Multiplication
+        function genForEachStringMultiplyConstant() {
+            const words = ["code", "java", "loop", "data", "node", "star"];
+            const word = randChoice(words);
+            const mult = randChoice([2, 3]);
+
+            let res = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const char = word[idx];
+                stepCount++;
+                let oldRes = res;
+                let branch = '';
+                if (char < 'h') {
+                    branch = `if char < "h"`;
+                    res += char.repeat(mult);
+                } else {
+                    branch = `else`;
+                    res += char;
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `char = '${char}'`,
+                    branch: branch,
+                    action: `res: "${oldRes}" ➔ "${res}"`,
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\nres = ""\nfor char in word:\n    if char < "h":\n        res += char * ${mult}\n    else:\n        res += char`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">res</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringMultiplyConstant',
+                type: 'For-Each String (Alphabetical Check)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: res,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 18. For-Each String Loop - Seen-Before Check (ch in out) with Variable Multiplication
+        function genForEachStringMultiplyVar() {
+            const words = ["anna", "otto", "noon", "deed", "radar"];
+            const word = randChoice(words);
+            const mult = randChoice([2, 3]);
+            const sep = randChoice(["-", "*"]);
+
+            let out = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const ch = word[idx];
+                stepCount++;
+                let oldOut = out;
+                let branch = '';
+                if (out.includes(ch)) {
+                    branch = `if ch in out`;
+                    out += sep.repeat(2);
+                } else {
+                    branch = `else`;
+                    out += ch.repeat(mult);
+                }
+                trace.push({
+                    step: stepCount,
+                    control: `ch = '${ch}'`,
+                    branch: branch,
+                    action: `out: "${oldOut}" ➔ "${out}"`,
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\nmult = ${mult}\nout = ""\nfor ch in word:\n    if ch in out:\n        out += "${sep}" * 2\n    else:\n        out += ch * mult`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringMultiplyVar',
+                type: 'For-Each String (Repeat Detection)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: out,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 19. Nested For Loop - Accumulating String with .isupper() Check & Constant Multiplication
+        function genNestedForStringMultiplyNoReset() {
+            const words = ["Go", "Hi", "Up", "By", "Ok"];
+            const word = randChoice(words);
+            const mult = randChoice([2, 3]);
+
+            let out = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(2)) {
+                for (let idx = 0; idx < word.length; idx++) {
+                    const ch = word[idx];
+                    stepCount++;
+                    let oldOut = out;
+                    let branch = '';
+                    if (ch >= 'A' && ch <= 'Z') {
+                        branch = `if ch.isupper()`;
+                        out += ch.repeat(mult);
+                    } else {
+                        branch = `else`;
+                        out += ch;
+                    }
+                    trace.push({
+                        step: stepCount,
+                        control: `i = ${i}, ch = '${ch}'`,
+                        branch: branch,
+                        action: `out: "${oldOut}" ➔ "${out}"`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `word = "${word}"\nout = ""\nfor i in range(2):\n    for ch in word:\n        if ch.isupper():\n            out += ch * ${mult}\n        else:\n            out += ch`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genNestedForStringMultiplyNoReset',
+                type: 'Nested For (Case Multiply)',
+                category: 'nested_for',
+                categories: ['nested_for', 'for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: out,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 20. Nested For Loop - String Reset Inside Outer Loop + Digit Masking ("*" * i)
+        function genNestedForStringResetVowels() {
+            const words = ["a1b2", "x3y", "c4d5", "p2q", "m1n"];
+            const word = randChoice(words);
+            const outerStop = randChoice([3, 4]);
+
+            let res = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(1, outerStop)) {
+                res = "";
+                let firstInOuter = true;
+                for (let idx = 0; idx < word.length; idx++) {
+                    const char = word[idx];
+                    stepCount++;
+                    let oldRes = res;
+                    let branch = '';
+                    if (char >= '0' && char <= '9') {
+                        branch = `if char.isdigit()`;
+                        res += "*".repeat(i);
+                    } else {
+                        branch = `else`;
+                        res += char;
+                    }
+                    const resetNote = firstInOuter ? `[res reset to ""] ` : '';
+                    firstInOuter = false;
+                    trace.push({
+                        step: stepCount,
+                        control: `i = ${i}, char = '${char}'`,
+                        branch: branch,
+                        action: `${resetNote}res: "${oldRes}" ➔ "${res}"`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `word = "${word}"\nfor i in range(1, ${outerStop}):\n    res = ""\n    for char in word:\n        if char.isdigit():\n            res += "*" * i\n        else:\n            res += char`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">res</code> after both loops finish? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genNestedForStringResetVowels',
+                type: 'Nested For (Digit Reset & Multiply)',
+                category: 'nested_for',
+                categories: ['nested_for', 'for_string_each'],
+                isInnerReset: true,
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: res,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 21. Nested For Loop - String Reset Inside Outer Loop + ch * i Repetition
+        function genNestedForStringResetRepeat() {
+            const words = ["hi", "go", "up", "no", "by"];
+            const word = randChoice(words);
+            const outerStop = randChoice([3, 4]);
+
+            let out = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (const i of pyRange(1, outerStop)) {
+                out = "";
+                let firstInOuter = true;
+                for (let idx = 0; idx < word.length; idx++) {
+                    const ch = word[idx];
+                    stepCount++;
+                    let oldOut = out;
+                    out += ch.repeat(i);
+                    const resetNote = firstInOuter ? `[out reset to ""] ` : '';
+                    firstInOuter = false;
+                    trace.push({
+                        step: stepCount,
+                        control: `i = ${i}, ch = '${ch}'`,
+                        branch: `out += ch * i`,
+                        action: `${resetNote}out: "${oldOut}" ➔ "${out}"`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `word = "${word}"\nfor i in range(1, ${outerStop}):\n    out = ""\n    for ch in word:\n        out += ch * i`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code> after both loops finish? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genNestedForStringResetRepeat',
+                type: 'Nested For (Reset & Multiply)',
+                category: 'nested_for',
+                categories: ['nested_for', 'for_string_each'],
+                isInnerReset: true,
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: out,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 22. Nested For-Each String Outer + Range Inner with String Reset & Multiplication
+        function genNestedForEachStringResetInnerRange() {
+            const words = ["cat", "dog", "sun", "box", "red"];
+            const word = randChoice(words);
+            const innerStop = randChoice([3, 4]);
+
+            let temp = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const ch = word[idx];
+                temp = "";
+                let firstInOuter = true;
+                for (const k of pyRange(1, innerStop)) {
+                    stepCount++;
+                    let oldTemp = temp;
+                    temp += ch.repeat(k);
+                    const resetNote = firstInOuter ? `[temp reset to ""] ` : '';
+                    firstInOuter = false;
+                    trace.push({
+                        step: stepCount,
+                        control: `ch = '${ch}', k = ${k}`,
+                        branch: `temp += ch * k`,
+                        action: `${resetNote}temp: "${oldTemp}" ➔ "${temp}"`,
+                        printed: '-'
+                    });
+                }
+            }
+
+            const code = `word = "${word}"\nfor ch in word:\n    temp = ""\n    for k in range(1, ${innerStop}):\n        temp += ch * k`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">temp</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genNestedForEachStringResetInnerRange',
+                type: 'Nested For-Each (Reset & Multiply)',
+                category: 'nested_for',
+                categories: ['nested_for', 'for_string_each'],
+                isInnerReset: true,
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: temp,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 23. For-Each String Loop - Manual Position Counter Inside Loop
+        function genForEachStringManualPos() {
+            const words = ["python", "coding", "austin", "vector", "planet"];
+            const word = randChoice(words);
+            const targetRem = randChoice([0, 1]);
+
+            let pos = 0;
+            let out = "";
+            let stepCount = 0;
+            const trace = [];
+
+            for (let idx = 0; idx < word.length; idx++) {
+                const char = word[idx];
+                stepCount++;
+                let oldOut = out;
+                let oldPos = pos;
+                let branch = '';
+                if (pos % 2 === targetRem) {
+                    branch = `if pos % 2 == ${targetRem}`;
+                    out += char;
+                } else {
+                    branch = `(skipped)`;
+                }
+                pos += 1;
+                trace.push({
+                    step: stepCount,
+                    control: `char = '${char}', pos = ${oldPos}`,
+                    branch: branch,
+                    action: `${oldOut !== out ? `out: "${oldOut}" ➔ "${out}", ` : ''}pos: ${oldPos} ➔ ${pos}`,
+                    printed: '-'
+                });
+            }
+
+            const code = `word = "${word}"\npos = 0\nout = ""\nfor char in word:\n    if pos % 2 == ${targetRem}:\n        out += char\n    pos += 1`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">out</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genForEachStringManualPos',
+                type: 'For-Each String (Manual Position)',
+                category: 'for_string_each',
+                categories: ['for_string_each'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: out,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
+        // 24. While Loop - String Indexing Filter (!= Target Character)
+        function genWhileStringFilter() {
+            const configs = [
+                { text: "banana", skip: "a" },
+                { text: "mississippi", skip: "s" },
+                { text: "alabama", skip: "a" },
+                { text: "bookkeeper", skip: "e" }
+            ];
+            const cfg = randChoice(configs);
+            const text = cfg.text;
+            const skip = cfg.skip;
+
+            let idx = 0;
+            let clean = "";
+            let stepCount = 0;
+            const trace = [];
+
+            while (idx < text.length && stepCount < 20) {
+                stepCount++;
+                const ch = text[idx];
+                let oldClean = clean;
+                let oldIdx = idx;
+                let branch = '';
+                if (ch !== skip) {
+                    branch = `if text[idx] != "${skip}"`;
+                    clean += ch;
+                } else {
+                    branch = `(skipped '${skip}')`;
+                }
+                idx += 1;
+                trace.push({
+                    step: stepCount,
+                    control: `idx = ${oldIdx} ('${ch}')`,
+                    branch: branch,
+                    action: `${oldClean !== clean ? `clean: "${oldClean}" ➔ "${clean}", ` : ''}idx: ${oldIdx} ➔ ${idx}`,
+                    printed: '-'
+                });
+            }
+
+            const code = `text = "${text}"\nidx = 0\nclean = ""\nwhile idx < len(text):\n    if text[idx] != "${skip}":\n        clean += text[idx]\n    idx += 1`;
+
+            const prompt = 'What is the final string value of variable <code class="text-burntOrange font-mono font-bold">clean</code>? (Outer quotes optional)';
+
+            return {
+                factoryId: 'genWhileStringFilter',
+                type: 'While Loop (String Filter)',
+                category: 'while_single',
+                categories: ['while_single', 'for_seq'],
+                isNegativeStep: false,
+                code,
+                prompt,
+                answer: clean,
+                targetType: 'final_val',
+                trace
+            };
+        }
+
         /* ----------------------------------------------------
          * FOR LOOPS OVER STRINGS AND LISTS (INDEX & LISTS)
          * ---------------------------------------------------- */
 
-        // 16. For Loop - Index-Based Iteration over String (range(len(text)))
+        // 25. For Loop - Index-Based Iteration over String (range(len(text)))
         function genForStringIndex() {
             const words = ["computer", "variable", "function", "sequence", "onramps"];
             const word = randChoice(words);
@@ -1199,6 +1643,7 @@
                 factoryId: 'genForStringIndex',
                 type: 'For Loop (String Index)',
                 category: 'for_seq',
+                categories: ['for_seq'],
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -1208,7 +1653,7 @@
             };
         }
 
-        // 17. For Loop - Direct Element Iteration over List of Numbers
+        // 26. For Loop - Direct Element Iteration over List of Numbers
         function genForListDirect() {
             const len = randInt(4, 6);
             const nums = [];
@@ -1249,6 +1694,7 @@
                 factoryId: 'genForListDirect',
                 type: 'For Loop (List Direct)',
                 category: 'for_seq',
+                categories: ['for_seq'],
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -1258,7 +1704,7 @@
             };
         }
 
-        // 18. For Loop - Index-Based Iteration over List (range(len(nums)))
+        // 27. For Loop - Index-Based Iteration over List (range(len(nums)))
         function genForListIndex() {
             const len = randInt(4, 5);
             const nums = [];
@@ -1298,6 +1744,7 @@
                 factoryId: 'genForListIndex',
                 type: 'For Loop (List Index)',
                 category: 'for_seq',
+                categories: ['for_seq'],
                 isNegativeStep: false,
                 code,
                 prompt,
@@ -1311,7 +1758,7 @@
          * NESTED LOOP GENERATOR ENGINE
          * ---------------------------------------------------- */
 
-        // 19. Nested For - Independent Ranges
+        // 28. Nested For - Independent Ranges
         function genNestedForIndependent() {
             const outerStop = randInt(2, 3);
             const innerStop = randInt(3, 4);
@@ -1363,7 +1810,7 @@
             };
         }
 
-        // 20. Nested For - Dependent Inner Range (j in range(i))
+        // 29. Nested For - Dependent Inner Range (j in range(i))
         function genNestedForDependent() {
             const outerStop = randInt(3, 4); // i = 1, 2, (3)
             let total = 0;
@@ -1405,7 +1852,7 @@
             };
         }
 
-        // 21. Nested For - Printed Output
+        // 30. Nested For - Printed Output
         function genNestedForPrint() {
             const outerStart = randInt(1, 2);
             const outerStop = outerStart + randInt(2, 3);
@@ -1453,7 +1900,7 @@
             };
         }
 
-        // 22. Nested While Loops (Outer while, inner dependent while)
+        // 31. Nested While Loops (Outer while, inner dependent while)
         function genNestedWhile() {
             const outerMax = randInt(3, 4);
             let i = 0;
@@ -1500,7 +1947,7 @@
             };
         }
 
-        // 23. Nested While - Decrement with Accumulator
+        // 32. Nested While - Decrement with Accumulator
         function genNestedWhileDecrement() {
             const startA = randChoice([6, 8]);
             let a = startA;
@@ -1543,7 +1990,7 @@
             };
         }
 
-        // 24. Combination Nested Loop - For inside While
+        // 33. Combination Nested Loop - For inside While
         function genComboForInsideWhile() {
             const startX = randChoice([8, 10]);
             let x = startX;
@@ -1591,7 +2038,7 @@
             };
         }
 
-        // 25. Combination Nested Loop - While inside For
+        // 34. Combination Nested Loop - While inside For
         function genComboWhileInsideFor() {
             const outerStop = randInt(3, 4); // range(1, 4) -> i=1, 2, 3
             let total = 0;
@@ -1633,7 +2080,7 @@
             };
         }
 
-        // Pool of all 25 generators
+        // Pool of all 34 generators
         const GENERATOR_POOL = [
             genForSingleArgRange,
             genForTwoArgRange,
@@ -1650,6 +2097,15 @@
             genForEachStringBuildFilter,
             genForEachStringBuildReplace,
             genForEachStringBuildOrder,
+            genForStringMultiplyLoopVar,
+            genForEachStringMultiplyConstant,
+            genForEachStringMultiplyVar,
+            genNestedForStringMultiplyNoReset,
+            genNestedForStringResetVowels,
+            genNestedForStringResetRepeat,
+            genNestedForEachStringResetInnerRange,
+            genForEachStringManualPos,
+            genWhileStringFilter,
             genForStringIndex,
             genForListDirect,
             genForListIndex,
@@ -1679,6 +2135,15 @@
             'genForEachStringBuildFilter': genForEachStringBuildFilter,
             'genForEachStringBuildReplace': genForEachStringBuildReplace,
             'genForEachStringBuildOrder': genForEachStringBuildOrder,
+            'genForStringMultiplyLoopVar': genForStringMultiplyLoopVar,
+            'genForEachStringMultiplyConstant': genForEachStringMultiplyConstant,
+            'genForEachStringMultiplyVar': genForEachStringMultiplyVar,
+            'genNestedForStringMultiplyNoReset': genNestedForStringMultiplyNoReset,
+            'genNestedForStringResetVowels': genNestedForStringResetVowels,
+            'genNestedForStringResetRepeat': genNestedForStringResetRepeat,
+            'genNestedForEachStringResetInnerRange': genNestedForEachStringResetInnerRange,
+            'genForEachStringManualPos': genForEachStringManualPos,
+            'genWhileStringFilter': genWhileStringFilter,
             'genForStringIndex': genForStringIndex,
             'genForListDirect': genForListDirect,
             'genForListIndex': genForListIndex,
@@ -1729,7 +2194,10 @@
             } else {
                 candidateGenerators = GENERATOR_POOL.filter(g => {
                     const sample = g();
-                    return sample.category === filterCategory || (sample.categories && sample.categories.includes(filterCategory));
+                    if (Array.isArray(sample.categories)) {
+                        return sample.categories.includes(filterCategory);
+                    }
+                    return sample.category === filterCategory;
                 });
             }
 
@@ -1738,11 +2206,28 @@
             }
 
             let attempts = 0;
-            while (STATE.questions.length < STATE.totalGoal && attempts < 400) {
+            let innerResetCount = 0;
+            const usedFactories = new Set();
+
+            while (STATE.questions.length < STATE.totalGoal && attempts < 500) {
                 attempts++;
                 const factory = randChoice(candidateGenerators);
                 const q = factory();
 
+                // Prefer distinct generator patterns so every problem in a 10-question set feels fresh
+                if (usedFactories.has(q.factoryId) && usedFactories.size < candidateGenerators.length && attempts < 300) {
+                    continue;
+                }
+
+                // Limit questions where the string variable is reset inside the outer loop to at most 1 per set
+                if (q.isInnerReset) {
+                    if (innerResetCount >= 1) {
+                        continue;
+                    }
+                    innerResetCount++;
+                }
+
+                usedFactories.add(q.factoryId);
                 STATE.questions.push({
                     id: STATE.questions.length + 1,
                     ...q,
